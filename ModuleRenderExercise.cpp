@@ -11,8 +11,8 @@
 ModuleRenderExercise::ModuleRenderExercise()
 {
 	//mirar esta parte
-	vertexShader = "Vertex_Shader.glsl";
-	fragmentShader = "Fragment_Shader.glsl";
+	vertexShader = "../Vertex_Shader.glsl";
+	fragmentShader = "../Fragment_Shader.glsl";
 
 	program = new ModuleProgram(vertexShader, fragmentShader);
 }
