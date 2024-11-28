@@ -33,6 +33,7 @@ bool ModuleOpenGL::Init()
 	LOG("Using Glew %s", glewGetString(GLEW_VERSION));
 
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 
@@ -41,9 +42,7 @@ bool ModuleOpenGL::Init()
 
 update_status ModuleOpenGL::PreUpdate()
 {
-	int window_width, window_height;
-	SDL_GetWindowSize(App->GetWindow()->window, &window_width, &window_height); // pone la altura y la anchura en window_width y window_height
-	glViewport(0, 0, window_width, window_height);
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

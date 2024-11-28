@@ -14,6 +14,7 @@ Application::Application()
 	modules.push_back(render = new ModuleOpenGL());
 	modules.push_back(renderEx = new ModuleRenderExercise());
 	modules.push_back(input = new ModuleInput());
+
 }
 
 Application::~Application()
