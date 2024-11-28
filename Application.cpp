@@ -4,6 +4,7 @@
 #include "ModuleOpenGL.h"
 #include "ModuleInput.h"
 #include "ModuleRenderExercise.h"
+#include "ModuleDebugDraw.h"
 
 using namespace std;
 
@@ -12,6 +13,7 @@ Application::Application()
 	// Order matters: they will Init/start/update in this order
 	modules.push_back(window = new ModuleWindow());
 	modules.push_back(render = new ModuleOpenGL());
+	modules.push_back(debugDraw = new ModuleDebugDraw());
 	modules.push_back(renderEx = new ModuleRenderExercise());
 	modules.push_back(input = new ModuleInput());
 

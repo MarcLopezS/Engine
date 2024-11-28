@@ -27,6 +27,7 @@ public:
     ModuleInput*  GetInput() { return input; }
     ModuleOpenGL* GetRender() { return render; }
     ModuleRenderExercise* GetModuleRenderExcercise() { return renderEx; }
+    ModuleDebugDraw* GetModuleDebugDraw() { return debugDraw; }
 
 private:
 
@@ -34,6 +35,7 @@ private:
     ModuleRenderExercise* renderEx = nullptr;
     ModuleWindow* window = nullptr;
     ModuleInput* input = nullptr;
+    ModuleDebugDraw* debugDraw = nullptr;
 
     std::list<Module*> modules;
 

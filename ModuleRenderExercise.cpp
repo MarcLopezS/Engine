@@ -1,6 +1,7 @@
 #include "ModuleRenderExercise.h"
 #include "ModuleProgram.h"
 #include "ModuleWindow.h"
+#include "ModuleDebugDraw.h"
 #include "Application.h"
 #include <fstream> 
 #include <sstream>
@@ -88,6 +89,13 @@ update_status ModuleRenderExercise::Update()
 	
 	RenderVBO();
 
+	App->GetModuleDebugDraw()->Draw(view, proj, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	glUseProgram(id_program); // Restore triangle shader
+	glBindBuffer(GL_ARRAY_BUFFER, vbo); // Restore VBO
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
 	return UPDATE_CONTINUE;
 }
 
@@ -111,7 +119,8 @@ void ModuleRenderExercise::RenderVBO()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
-
+	///glBindBuffer(GL_ARRAY_BUFFER, 0);
+	///glDisableVertexAttribArray(0);
 }
 
 //Function called one time at creation of vertex buffer
@@ -126,6 +135,8 @@ void ModuleRenderExercise::CreateTriangleVBO()
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER,sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_data), (void*)0);
 
 }
 
@@ -139,6 +150,7 @@ float4x4 ModuleRenderExercise::LookAt(const float3& eye, const float3& target, c
 	camera_matrix.SetCol3(0, right);
 	camera_matrix.SetCol3(1, up_corrected);
 	camera_matrix.SetCol3(2, -forward);
+	//camera_matrix.SetCol3(3, eye);
 
 	float4x4 translation_matrix = float4x4::Translate(-eye);
 	float4x4 view_matrix = camera_matrix.Transposed() * translation_matrix;
