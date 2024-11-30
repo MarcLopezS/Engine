@@ -68,33 +68,31 @@ bool ModuleRenderExercise::Init()
 update_status ModuleRenderExercise::Update()
 {
 	float4x4 model = float4x4::FromTRS(float3(2.0f, 0.0f, 0.0f), float4x4::RotateZ(static_cast<float>(M_PI) / 4.0f), float3(2.0f, 1.0f, 1.0f));
-	view = LookAt(float3(0.0f, 2.0f, 6.0f), float3(0.0f, 0.0f, 0.0f), float3::unitY);
+	view = LookAt(float3(0.0f, 3.0f, 6.0f), float3(0.0f, 0.0f, 0.0f), float3::unitY);
 	proj = CalcProjectionMatrix(16.0f / 9.0f, 0.1f, 100.0f);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glUseProgram(id_program);
+	App->GetModuleDebugDraw()->Draw(view, proj, SCREEN_WIDTH, SCREEN_HEIGHT);
+	
+	glUseProgram(id_program); // Restore triangle shader
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 
 	GLint modelLoc = glGetUniformLocation(id_program, "model");
 	GLint viewLoc = glGetUniformLocation(id_program, "view");
 	GLint projLoc = glGetUniformLocation(id_program, "proj");
 
 	if (modelLoc == -1 || viewLoc == -1 || projLoc == -1) {
-		std::cerr << "Error: Uniforms shaders location not found." << std::endl;
+		LOG("Error: Uniforms shaders location not found.");
 	}
 
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &model[0][0]);
 	glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &view[0][0]);
 	glUniformMatrix4fv(projLoc, 1, GL_TRUE, &proj[0][0]);
 	
-	RenderVBO();
-
-	App->GetModuleDebugDraw()->Draw(view, proj, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	glUseProgram(id_program); // Restore triangle shader
-	glBindBuffer(GL_ARRAY_BUFFER, vbo); // Restore VBO
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	return UPDATE_CONTINUE;
 }
@@ -111,17 +109,6 @@ bool ModuleRenderExercise::CleanUp()
 	return true;
 }
 
-void ModuleRenderExercise::RenderVBO()
-{
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	///glBindBuffer(GL_ARRAY_BUFFER, 0);
-	///glDisableVertexAttribArray(0);
-}
 
 //Function called one time at creation of vertex buffer
 void ModuleRenderExercise::CreateTriangleVBO()
@@ -135,8 +122,6 @@ void ModuleRenderExercise::CreateTriangleVBO()
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER,sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_data), (void*)0);
 
 }
 
@@ -150,7 +135,6 @@ float4x4 ModuleRenderExercise::LookAt(const float3& eye, const float3& target, c
 	camera_matrix.SetCol3(0, right);
 	camera_matrix.SetCol3(1, up_corrected);
 	camera_matrix.SetCol3(2, -forward);
-	//camera_matrix.SetCol3(3, eye);
 
 	float4x4 translation_matrix = float4x4::Translate(-eye);
 	float4x4 view_matrix = camera_matrix.Transposed() * translation_matrix;

@@ -22,7 +22,6 @@ public:
     update_status PostUpdate();
     bool CleanUp();
 
-    void RenderVBO();
     void CreateTriangleVBO();
     float4x4 LookAt(const float3& eye, const float3& target, const float3& up);
     float4x4 CalcProjectionMatrix(const float aspectRatio, const float nearPlane, const float farPlane);
