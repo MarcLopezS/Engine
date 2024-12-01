@@ -108,6 +108,7 @@
     <ClCompile Include="ModuleDebugDraw.cpp">
       <Filter>DebugDraw</Filter>
     </ClCompile>
+    <ClCompile Include="ModuleCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -308,6 +309,7 @@
     <ClInclude Include="ModuleDebugDraw.h">
       <Filter>DebugDraw</Filter>
     </ClInclude>
+    <ClInclude Include="ModuleCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Fragment_Shader.glsl" />

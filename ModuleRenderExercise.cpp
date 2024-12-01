@@ -2,6 +2,7 @@
 #include "ModuleProgram.h"
 #include "ModuleWindow.h"
 #include "ModuleDebugDraw.h"
+#include "ModuleCamera.h"
 #include "Application.h"
 #include <fstream> 
 #include <sstream>
@@ -68,8 +69,8 @@ bool ModuleRenderExercise::Init()
 update_status ModuleRenderExercise::Update()
 {
 	float4x4 model = float4x4::FromTRS(float3(2.0f, 0.0f, 0.0f), float4x4::RotateZ(static_cast<float>(M_PI) / 4.0f), float3(2.0f, 1.0f, 1.0f));
-	view = LookAt(float3(0.0f, 3.0f, 6.0f), float3(0.0f, 0.0f, 0.0f), float3::unitY);
-	proj = CalcProjectionMatrix(16.0f / 9.0f, 0.1f, 100.0f);
+	view = App->GetModuleCamera()->GetViewMatrix();
+	proj = App->GetModuleCamera()->GetProjMatrix();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
