@@ -26,8 +26,10 @@ public:
     void Setorientation(); //sets the orientation of the camera
     void SetLookAt();// change the name of the function, tells where is looking the camera
 
-    float4x4 GetViewMatrix() { return viewMatrix; }
-    float4x4 GetProjMatrix() { return projMatrix; }
+    void MoveCamera(const float3& movement);
+    float4x4 GetViewMatrix() const { return viewMatrix; }
+    float4x4 GetProjMatrix() const { return projMatrix; }
+
 
 private:
 
@@ -37,9 +39,18 @@ private:
     float farPlane;
 
     float3 position;
+    float3 target;
 
     float4x4 viewMatrix;
     float4x4 projMatrix;
+
+    float deltaTime;
+    float lastFrame;
+
+ 
+
+
+
 
 };
 

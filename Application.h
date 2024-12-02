@@ -3,6 +3,7 @@
 #include<list>
 #include "Globals.h"
 #include "Module.h"
+#include "SDL.h"
 
 class ModuleOpenGL;
 class ModuleWindow;
@@ -30,8 +31,14 @@ public:
     ModuleRenderExercise* GetModuleRenderExcercise() { return renderEx; }
     ModuleCamera* GetModuleCamera() { return camera; }
     ModuleDebugDraw* GetModuleDebugDraw() { return debugDraw; }
+    ModuleInput* GetModuleInput() { return input; }
+
+    float GetDeltaTime() { return deltaTime; }
 
 private:
+    void CalculateDeltaTime();
+    Uint32 lastFrameTime;
+    float deltaTime;
 
     ModuleOpenGL* render = nullptr;
     ModuleRenderExercise* renderEx = nullptr;

@@ -16,8 +16,11 @@ Application::Application()
 	modules.push_back(render = new ModuleOpenGL());
 	modules.push_back(debugDraw = new ModuleDebugDraw());
 	modules.push_back(renderEx = new ModuleRenderExercise());
-	modules.push_back(camera = new ModuleCamera());
 	modules.push_back(input = new ModuleInput());
+	modules.push_back(camera = new ModuleCamera());
+
+	deltaTime = 0.0f;
+	lastFrameTime = SDL_GetTicks();
 
 }
 
@@ -43,6 +46,8 @@ update_status Application::Update()
 {
 	update_status ret = UPDATE_CONTINUE;
 
+	CalculateDeltaTime();
+
 	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret == UPDATE_CONTINUE; ++it)
 		ret = (*it)->PreUpdate();
 
@@ -63,4 +68,12 @@ bool Application::CleanUp()
 		ret = (*it)->CleanUp();
 
 	return ret;
+}
+
+
+void Application::CalculateDeltaTime()
+{
+	Uint32 currentFrameTime = SDL_GetTicks();
+	deltaTime = (currentFrameTime - lastFrameTime) / 1000.0f;
+	lastFrameTime = currentFrameTime;
 }
