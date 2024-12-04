@@ -4,6 +4,7 @@
 
 #include "Math/float4x4.h"
 
+
 class ModuleCamera :
     public Module
 {
@@ -26,7 +27,6 @@ public:
     void Setorientation(); //sets the orientation of the camera
     void SetLookAt();// change the name of the function, tells where is looking the camera
 
-    void MoveCamera(const float3& movement);
     float4x4 GetViewMatrix() const { return viewMatrix; }
     float4x4 GetProjMatrix() const { return projMatrix; }
 
@@ -40,17 +40,14 @@ private:
 
     float3 position;
     float3 target;
+    float3 forward;
+    float3 up;
+    float3 right;
 
     float4x4 viewMatrix;
     float4x4 projMatrix;
 
     float deltaTime;
-    float lastFrame;
-
- 
-
-
-
-
+    float lastFrame; 
 };
 

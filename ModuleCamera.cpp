@@ -5,13 +5,13 @@
 #include "Geometry/Frustum.h"
 #include "Globals.h"
 
-#define MAX_KEYS 300
-
-
 ModuleCamera::ModuleCamera()
 {
 	position = float3(0.0f, 3.0f, 6.0f);
 	target = float3(0.0f, 0.0f, 0.0f);
+	forward = -float3::unitZ;
+	up = float3::unitY;
+	right = float3::unitX;
 }
 
 ModuleCamera::~ModuleCamera()
@@ -22,7 +22,7 @@ bool ModuleCamera::Init()
 {
 	LOG("Creating Camera context");
 	bool ret = true;
-	LookAt(position, target, float3::unitY);
+	LookAt(position, target, up);
 	CalcProjMatrix(16.0f / 9.0f, 0.1f, 100.0f);
 
 	return ret;
@@ -32,17 +32,30 @@ bool ModuleCamera::Init()
 update_status ModuleCamera::Update()
 {
 	float deltaTime = App->GetDeltaTime();
-	const float cameraSpeed = 1.0f;
+	float cameraSpeed = 2.0f;
 
+	//detect if shift key is pressed, then multiply speed movement
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT ||
+		App->GetModuleInput()->GetKey(SDL_SCANCODE_RSHIFT) == KEY_REPEAT)
+		cameraSpeed *= 2.0f;
+
+	//Movement
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
-		MoveCamera(-position * cameraSpeed * deltaTime);
+		position += forward * cameraSpeed * deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) 
-		MoveCamera(position * cameraSpeed * deltaTime);
-	/*if (App->GetModuleInput()->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
-		MoveCamera(-viewMatrix.Col3(2).xyz() * cameraSpeed * deltaTime);
+		position += -forward * cameraSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT)//rotation focused ATM (not what we want?)
+		position += up * cameraSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_E) == KEY_REPEAT)//rotation focused ATM (not what we want?)
+		position += -up * cameraSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
+		position += -right * cameraSpeed * deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
-		MoveCamera(viewMatrix.Col3(2).xyz() * cameraSpeed * deltaTime);
-	*/
+		position += right * cameraSpeed * deltaTime;
+
+	LookAt(position, position + forward, up);
+
+	
 	return UPDATE_CONTINUE;
 }
 
@@ -51,19 +64,11 @@ bool ModuleCamera::CleanUp()
 	return true;
 }
 
-//Comtrol movement of the camera. It seems that the camera is flipping and looking to the opsite site. That's the reason why sometimes it sees only black
-void ModuleCamera::MoveCamera(const float3& movement)
-{
-
-	position += movement;
-
-	LookAt(position, target, float3::unitY);
-}
 
 void ModuleCamera::LookAt(const float3& eye, const float3& target, const float3& up)
 {
-	float3 forward = (target - eye).Normalized();
-	float3 right = forward.Cross(up).Normalized();
+	forward = (target - eye).Normalized();
+	right = forward.Cross(up).Normalized();
 	float3 up_corrected = right.Cross(forward).Normalized();
 
 	float4x4 camera_matrix = float4x4::identity;

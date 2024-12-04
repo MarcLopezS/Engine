@@ -127,40 +127,6 @@ void ModuleRenderExercise::CreateTriangleVBO()
 
 }
 
-float4x4 ModuleRenderExercise::LookAt(const float3& eye, const float3& target, const float3& up)
-{
-	float3 forward = (target - eye).Normalized();
-	float3 right = forward.Cross(up).Normalized();
-	float3 up_corrected = right.Cross(forward).Normalized();
-
-	float4x4 camera_matrix = float4x4::identity;
-	camera_matrix.SetCol3(0, right);
-	camera_matrix.SetCol3(1, up_corrected);
-	camera_matrix.SetCol3(2, -forward);
-
-	float4x4 translation_matrix = float4x4::Translate(-eye);
-	float4x4 view_matrix = camera_matrix.Transposed() * translation_matrix;
-
-	return view_matrix;
-
-}
-
-float4x4 ModuleRenderExercise::CalcProjectionMatrix(const float aspectRatio, const float nearPlane, const float farPlane)
-{
-	Frustum frustum;
-	frustum.type = FrustumType::PerspectiveFrustum;
-
-	frustum.pos = float3::zero; 
-	frustum.front = -float3::unitZ;
-	frustum.up = float3::unitY;
-
-	frustum.nearPlaneDistance = nearPlane;
-	frustum.farPlaneDistance = farPlane;
-	frustum.verticalFov = M_PI / 4.0f; //45 degrees
-	frustum.horizontalFov = 2.f * atanf(tanf(frustum.verticalFov * 0.5f) * aspectRatio);
-
-	return frustum.ProjectionMatrix();
-}
 //function called one time at destruction of vertex buffer
 void ModuleRenderExercise::DestroyVBO()
 {
