@@ -3,6 +3,7 @@
 #include "SDL/include/SDL.h"
 
 #include "Math/float4x4.h"
+#include "Geometry/Frustum.h"
 
 
 class ModuleCamera :
@@ -38,14 +39,14 @@ private:
     float nearPlane;
     float farPlane;
 
-    float3 position;
-    float3 target;
-    float3 forward;
-    float3 up;
-    float3 right;
+    Frustum frustum;
+
+    float yaw;
+    float pitch;
 
     float4x4 viewMatrix;
     float4x4 projMatrix;
+    float4x4 rotationMatrix;
 
     float deltaTime;
     float lastFrame; 

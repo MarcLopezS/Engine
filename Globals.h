@@ -23,6 +23,9 @@ enum update_status
 		 }\
 	 }
 
+// Convert from Degrees to radians
+#define DEG_TO_RAD(degrees) ((degrees) * M_PI / 180.0f)
+
 // Configuration -----------
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480

@@ -26,8 +26,8 @@ public:
     void DestroyVBO();
 
     ModuleProgram* GetProgram() { return program; }
-    float4x4 GetViewMatrix() { return view; }
-    float4x4 GetProjMatrix() { return proj; }
+    float4x4 GetViewMatrix() const { return view; }
+    float4x4 GetProjMatrix() const { return proj; }
 
 
 private:
