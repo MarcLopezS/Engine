@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "Math/TransformOps.h"
 #include "Globals.h"
+#include <algorithm>
 
 ModuleCamera::ModuleCamera()
 {
@@ -12,6 +13,7 @@ ModuleCamera::ModuleCamera()
 	
 	yaw = -90.0f;
 	pitch = 0.0f;
+
 }
 
 ModuleCamera::~ModuleCamera()
@@ -31,9 +33,11 @@ bool ModuleCamera::Init()
 //Catch input through moduleInput and do some actions
 update_status ModuleCamera::Update()
 {
-	float deltaTime = App->GetDeltaTime();
-	float cameraSpeed = 2.0f;
-	float rotationSpeed = 20.0f;
+	deltaTime = App->GetDeltaTime();
+	cameraSpeed = 4.0f;
+	rotationSpeed = 60.0f;		
+	sensitivity = 20.0f;
+
 
 	//detect if shift key is pressed, then multiply speed movement
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT ||
@@ -41,37 +45,14 @@ update_status ModuleCamera::Update()
 
 		cameraSpeed *= 3.0f;
 		rotationSpeed *= 3.0f;
+		sensitivity *= 2.0f;
 	}
 
-	//Movement
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
-		frustum.pos += frustum.front * cameraSpeed * deltaTime;
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) 
-		frustum.pos -= frustum.front * cameraSpeed * deltaTime;
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT)//rotation focused ATM (not what we want?)
-		frustum.pos += frustum.up * cameraSpeed * deltaTime;
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_E) == KEY_REPEAT)//rotation focused ATM (not what we want?)
-		frustum.pos -= frustum.up * cameraSpeed * deltaTime;
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
-		frustum.pos -= frustum.WorldRight() * cameraSpeed * deltaTime;
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
-		frustum.pos += frustum.WorldRight() * cameraSpeed * deltaTime;
-
-
-	//Rotation
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT)
-		pitch += rotationSpeed * deltaTime;
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
-		pitch -= rotationSpeed * deltaTime;
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
-		yaw += rotationSpeed * deltaTime;
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
-		yaw -= rotationSpeed * deltaTime;
-
-
-	//Limit pitch
-	if(pitch > 89.0f) pitch = 89.0f;
-	else if (pitch < -89.0f) pitch = -89.0f;
+	//Movement Drag and Zoom
+	MovKeyboardController();
+	MovMouseController();
+	
+	pitch = max(-89.0f, min(89.0f, pitch));
 
 	float3 newForward;
 	newForward.x = cosf(DEG_TO_RAD(yaw)) * cosf(DEG_TO_RAD(pitch));
@@ -80,7 +61,6 @@ update_status ModuleCamera::Update()
 
 	frustum.front = newForward.Normalized();
 	frustum.up = frustum.WorldRight().Cross(frustum.front).Normalized();
-
 	
 	LookAt(frustum.pos, frustum.pos + frustum.front, frustum.up);
 	
@@ -90,6 +70,73 @@ update_status ModuleCamera::Update()
 bool ModuleCamera::CleanUp()
 {
 	return true;
+}
+
+void ModuleCamera::MovKeyboardController()
+{
+	//Movement
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
+		frustum.pos += frustum.front * cameraSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_S) == KEY_REPEAT)
+		frustum.pos -= frustum.front * cameraSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT)//rotation focused ATM (not what we want?)
+		frustum.pos += frustum.up * cameraSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_E) == KEY_REPEAT)//rotation focused ATM (not what we want?)
+		frustum.pos -= frustum.up * cameraSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
+		frustum.pos -= frustum.WorldRight() * cameraSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
+		frustum.pos += frustum.WorldRight() * cameraSpeed * deltaTime;
+	
+	//Rotation
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT)
+		pitch += rotationSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
+		pitch -= rotationSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
+		yaw += rotationSpeed * deltaTime;
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
+		yaw -= rotationSpeed * deltaTime;
+}
+
+void ModuleCamera::MovMouseController()
+{
+	Point mouseDelta = App->GetModuleInput()->GetMouseMotion();
+
+	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT ||
+		App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_MIDDLE) == KEY_REPEAT) 
+	{
+		frustum.pos += frustum.WorldRight() * -mouseDelta.x * sensitivity * deltaTime;
+		frustum.pos += frustum.up * mouseDelta.y * sensitivity * deltaTime;
+	}
+
+
+	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KEY_REPEAT)
+	{
+		if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT) //zoom
+		{
+			sensitivity = 80.0f;
+			float zoomFactor = 0.0f;
+			if (mouseDelta.y > 0 || mouseDelta.x < 0) zoomFactor = -sensitivity * deltaTime;
+			else if (mouseDelta.y < 0 || mouseDelta.x > 0) zoomFactor = sensitivity * deltaTime;
+
+			frustum.pos += frustum.front * zoomFactor;
+		}
+		else //rotation
+		{
+			const float threshold = 0.1f; 
+			float deltaX = (fabs(mouseDelta.x) > threshold) ? mouseDelta.x : 0.0f;
+			float deltaY = (fabs(mouseDelta.y) > threshold) ? mouseDelta.y : 0.0f;
+
+			float sensitivityFactor = 10.0f; 
+
+			yaw += deltaX * sensitivityFactor * rotationSpeed * deltaTime;;
+			pitch -= deltaY * sensitivityFactor * rotationSpeed * deltaTime;
+
+		}
+	}
+
+
 }
 
 

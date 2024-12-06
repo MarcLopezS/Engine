@@ -16,7 +16,6 @@ public:
     bool Init();
     update_status Update();
     bool CleanUp();
-    // detect keyboard event in this module
 
     void LookAt(const float3& eye, const float3& target, const float3& up);
     void CalcProjMatrix(const float aspectRatio, const float nearPlane, const float farPlane);
@@ -27,6 +26,9 @@ public:
     void SetPosition(); //sets the position where the camera is placed.
     void Setorientation(); //sets the orientation of the camera
     void SetLookAt();// change the name of the function, tells where is looking the camera
+
+    void MovKeyboardController(); //Movement controller by keyboard
+    void MovMouseController(); //Movement controller by mouse
 
     float4x4 GetViewMatrix() const { return viewMatrix; }
     float4x4 GetProjMatrix() const { return projMatrix; }
@@ -49,6 +51,10 @@ private:
     float4x4 rotationMatrix;
 
     float deltaTime;
-    float lastFrame; 
+    float lastFrame;
+    float cameraSpeed;
+    float rotationSpeed;
+    float sensitivity;
+
 };
 

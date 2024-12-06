@@ -69,7 +69,7 @@ bool ModuleRenderExercise::Init()
 
 update_status ModuleRenderExercise::Update()
 {
-	float4x4 model = float4x4::FromTRS(float3(0.0f, 0.0f, -1.0f), float4x4::RotateZ(static_cast<float>(M_PI) / 4.0f), float3(1.0f, 1.0f, 1.0f));
+	float4x4 model = float4x4::FromTRS(float3(0.0f, 1.0f, -1.0f), float4x4::RotateZ(static_cast<float>(M_PI) / 4.0f), float3(1.0f, 1.0f, 1.0f));
 	view = App->GetModuleCamera()->GetViewMatrix();
 	proj = App->GetModuleCamera()->GetProjMatrix();
 
