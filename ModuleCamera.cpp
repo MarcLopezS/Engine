@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "Math/TransformOps.h"
 #include "Globals.h"
+#include "imgui.h"
 #include <algorithm>
 
 ModuleCamera::ModuleCamera()
@@ -74,14 +75,19 @@ bool ModuleCamera::CleanUp()
 
 void ModuleCamera::MovKeyboardController()
 {
+	//Deactivate control movement when ImGUI captures keyboard
+
+	if (ImGui::GetIO().WantCaptureKeyboard)
+		return;
+	
 	//Movement
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
 		frustum.pos += frustum.front * cameraSpeed * deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_S) == KEY_REPEAT)
 		frustum.pos -= frustum.front * cameraSpeed * deltaTime;
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT)//rotation focused ATM (not what we want?)
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT)
 		frustum.pos += frustum.up * cameraSpeed * deltaTime;
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_E) == KEY_REPEAT)//rotation focused ATM (not what we want?)
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_E) == KEY_REPEAT)
 		frustum.pos -= frustum.up * cameraSpeed * deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
 		frustum.pos -= frustum.WorldRight() * cameraSpeed * deltaTime;
@@ -101,6 +107,10 @@ void ModuleCamera::MovKeyboardController()
 
 void ModuleCamera::MovMouseController()
 {
+	//Deactivate control movement when ImGUI captures mouse
+	if (ImGui::GetIO().WantCaptureMouse)
+		return;
+
 	Point mouseDelta = App->GetModuleInput()->GetMouseMotion();
 
 	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT ||

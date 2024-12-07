@@ -2,7 +2,9 @@
 #include "Application.h"
 #include "ModuleInput.h"
 #include "ModuleOpenGL.h"
+#include "ModuleEditor.h"
 #include "SDL/include/SDL.h"
+#include "backends/imgui_impl_sdl2.h"
 
 #define MAX_KEYS 300
 
@@ -39,7 +41,41 @@ bool ModuleInput::Init()
 //TODO: Check if this process of reading inputs is done correctly
 update_status ModuleInput::PreUpdate()
 {
+	SDL_Event sdlEvent;
+
 	mouse_motion = { 0, 0 };
+
+	while (SDL_PollEvent(&sdlEvent) != 0)
+	{
+		ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
+
+		switch (sdlEvent.type)
+		{
+		case SDL_QUIT:
+			return UPDATE_STOP;
+		case SDL_WINDOWEVENT:
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_CLOSE) return UPDATE_STOP;
+			if (sdlEvent.window.event == SDL_WINDOWEVENT_RESIZED || sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+				App->GetOpenGL()->WindowResized(sdlEvent.window.data1, sdlEvent.window.data2);
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			mouse_buttons[sdlEvent.button.button - 1] = KEY_DOWN;
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+			mouse_buttons[sdlEvent.button.button - 1] = KEY_UP;
+			break;
+
+		case SDL_MOUSEMOTION:
+			mouse_motion.x = sdlEvent.motion.xrel / SCREEN_SIZE;
+			mouse_motion.y = sdlEvent.motion.yrel / SCREEN_SIZE;
+			mouse.x = sdlEvent.motion.x / SCREEN_SIZE;
+			mouse.y = sdlEvent.motion.y / SCREEN_SIZE;
+			break;
+		}
+
+
+	}
 
 	keyboard = SDL_GetKeyboardState(NULL);
 
@@ -70,43 +106,18 @@ update_status ModuleInput::PreUpdate()
 			mouse_buttons[i] = KEY_IDLE;
 	}
 
+
+
     return UPDATE_CONTINUE;
 }
 
 // Called every draw update
 update_status ModuleInput::Update()
 {
-    SDL_Event sdlEvent;
 
-    while (SDL_PollEvent(&sdlEvent) != 0)
-    {
-        switch (sdlEvent.type)
-        {
-            case SDL_QUIT:
-                return UPDATE_STOP;
-            case SDL_WINDOWEVENT:
-                if (sdlEvent.window.event == SDL_WINDOWEVENT_RESIZED || sdlEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-                    App->GetOpenGL()->WindowResized(sdlEvent.window.data1, sdlEvent.window.data2);
-                break;
-			case SDL_MOUSEBUTTONDOWN:
-				mouse_buttons[sdlEvent.button.button - 1] = KEY_DOWN;
-				break;
 
-			case SDL_MOUSEBUTTONUP:
-				mouse_buttons[sdlEvent.button.button - 1] = KEY_UP;
-				break;
 
-			case SDL_MOUSEMOTION:
-				mouse_motion.x = sdlEvent.motion.xrel / SCREEN_SIZE;
-				mouse_motion.y = sdlEvent.motion.yrel / SCREEN_SIZE;
-				mouse.x = sdlEvent.motion.x / SCREEN_SIZE;
-				mouse.y = sdlEvent.motion.y / SCREEN_SIZE;
-				break;
-        }
-    }
-
-    keyboard = SDL_GetKeyboardState(NULL);
-
+    
     return UPDATE_CONTINUE;
 }
 

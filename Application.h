@@ -12,6 +12,7 @@ class ModuleInput;
 class ModuleRenderExercise;
 class ModuleDebugDraw;
 class ModuleCamera;
+class ModuleEditor;
 
 class Application
 {
@@ -32,6 +33,7 @@ public:
     ModuleCamera* GetModuleCamera() { return camera; }
     ModuleDebugDraw* GetModuleDebugDraw() { return debugDraw; }
     ModuleInput* GetModuleInput() { return input; }
+    ModuleEditor* GetModuleEditor() { return editor; }
 
     float GetDeltaTime() { return deltaTime; }
 
@@ -46,6 +48,7 @@ private:
     ModuleInput* input = nullptr;
     ModuleDebugDraw* debugDraw = nullptr;
     ModuleCamera* camera = nullptr;
+    ModuleEditor* editor = nullptr;
 
     std::list<Module*> modules;
 
