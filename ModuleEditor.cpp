@@ -42,6 +42,8 @@ update_status ModuleEditor::PreUpdate()
 
 update_status ModuleEditor::Update()
 {
+	DrawMenu();
+
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);
 
@@ -132,4 +134,61 @@ void ModuleEditor::RenderLogWindow()
 		ImGui::SetScrollHereY(1.0f);
 
 	ImGui::End();
+}
+
+void ModuleEditor::DrawMenu()
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("New"))
+			{
+				LOG("New File");
+			}
+			if (ImGui::MenuItem("Open"))
+			{
+				LOG("Open file");
+			}
+			if (ImGui::MenuItem("Save"))
+			{
+				LOG("Save file");
+			}
+			ImGui::Separator(); 
+			if (ImGui::MenuItem("Exit"))
+			{
+				App->CleanUp();
+			}
+			ImGui::EndMenu(); 
+		}
+
+		if (ImGui::BeginMenu("View"))
+		{
+			if (ImGui::MenuItem("Show Console"))
+			{
+				show_log_window = !show_log_window;
+			}
+			ImGui::EndMenu(); 
+		}
+
+		if (ImGui::BeginMenu("Help"))
+		{
+			if (ImGui::MenuItem("Gui Demo"))
+			{
+				LOG("Opening ImGui Demo");
+				show_demo_window = !show_demo_window;
+			}
+			if (ImGui::MenuItem("Documentation"))
+			{
+				LOG("Opening Documentation");
+			}
+			if (ImGui::MenuItem("About"))
+			{
+				LOG("Showing Software details");
+			}
+			ImGui::EndMenu(); 
+		}
+
+		ImGui::EndMainMenuBar(); 
+	}
 }

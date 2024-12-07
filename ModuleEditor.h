@@ -20,6 +20,7 @@ public:
 
 	void AddLog(const char* log);
 	void RenderLogWindow();
+	void DrawMenu();
 
 	ImGuiIO* io;
 
