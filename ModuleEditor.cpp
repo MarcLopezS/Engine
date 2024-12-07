@@ -24,10 +24,8 @@ bool ModuleEditor::Init()
 	ImGui::CreateContext();
 	io = &ImGui::GetIO();
 	io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	//io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	//io->ConfigFlags &= ~ImGuiConfigFlags_DockingEnable;         // Enable Docking
 	io->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-	//io->ConfigFlags |= ImGuiWindowFlags_NoDocking;
+
 	ImGui_ImplSDL2_InitForOpenGL(App->GetWindow()->window, App->GetRender()->GetContext());
 	ImGui_ImplOpenGL3_Init(GLSL_VERSION);
 	return true;
@@ -46,6 +44,9 @@ update_status ModuleEditor::Update()
 {
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);
+
+	if (show_log_window)
+		RenderLogWindow();
 
 	if (show_another_window)
 	{
@@ -69,7 +70,7 @@ update_status ModuleEditor::Update()
 
 		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-		ImGui::Checkbox("Another Window", &show_another_window);
+		ImGui::Checkbox("Another Window", &show_log_window);
 
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
@@ -86,12 +87,6 @@ update_status ModuleEditor::Update()
 	// Rendering
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-	/*if (io->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-	}*/
 
 	return UPDATE_CONTINUE;
 }
@@ -111,4 +106,30 @@ bool ModuleEditor::CleanUp()
 		ImGui::DestroyContext();
 	}
 	return true;
+}
+
+void ModuleEditor::AddLog(const char* log)
+{
+	logs.push_back(log); 
+	if (logs.size() > 1000) 
+	{
+		logs.erase(logs.begin()); 
+	}
+}
+
+void ModuleEditor::RenderLogWindow()
+{
+	if (!show_log_window) return;
+
+	ImGui::Begin("Console", &show_log_window);
+
+	for (const auto& log : logs)
+	{
+		ImGui::TextUnformatted(log.c_str());
+	}
+
+	if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+		ImGui::SetScrollHereY(1.0f);
+
+	ImGui::End();
 }
