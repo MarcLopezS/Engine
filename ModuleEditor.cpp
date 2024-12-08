@@ -5,11 +5,13 @@
 #include "SDL.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_opengl3.h"
+#include <algorithm>
 
 ModuleEditor::ModuleEditor() 
 {
-	show_demo_window = true;
+	show_demo_window = false;
 	show_another_window = false;
+	show_config_window = false;
 	clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	io = nullptr;
 }
@@ -28,6 +30,10 @@ bool ModuleEditor::Init()
 
 	ImGui_ImplSDL2_InitForOpenGL(App->GetWindow()->window, App->GetRender()->GetContext());
 	ImGui_ImplOpenGL3_Init(GLSL_VERSION);
+
+	fps_log.reserve(max_log_size);
+	ms_log.reserve(max_log_size);
+
 	return true;
 }
 
@@ -63,7 +69,26 @@ update_status ModuleEditor::Update()
 		ImGui::End();  
 	}
 
+	if (show_config_window)
 	{
+		ImGui::Begin("Configuration",&show_config_window);
+		ImGui::Text("Options");
+
+		if (ImGui::CollapsingHeader("Application"))
+		{
+			UpdatePerformanceLogs();
+			ImGui::InputText("Application Name", const_cast<char*>(TITLE), strlen(TITLE) + 1, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::Text("Performance Metrics:");
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
+
+			DrawPerformanceGraphs(); 
+		}
+
+		ImGui::End();
+	}
+
+	{ //Demo (remove later)
 		static float f = 0.0f;
 		static int counter = 0;
 
@@ -154,11 +179,7 @@ void ModuleEditor::DrawMenu()
 			{
 				LOG("Save file");
 			}
-			ImGui::Separator(); 
-			if (ImGui::MenuItem("Exit"))
-			{
-				App->CleanUp();
-			}
+
 			ImGui::EndMenu(); 
 		}
 
@@ -169,6 +190,16 @@ void ModuleEditor::DrawMenu()
 				show_log_window = !show_log_window;
 			}
 			ImGui::EndMenu(); 
+		}
+		//make configuration menu
+		if (ImGui::BeginMenu("Configuration"))
+		{
+			if (ImGui::MenuItem("Show Configuration"))
+			{
+				LOG("Opening Configuration Window");
+				show_config_window = !show_config_window;
+			}
+			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu("Help"))
@@ -190,5 +221,38 @@ void ModuleEditor::DrawMenu()
 		}
 
 		ImGui::EndMainMenuBar(); 
+	}
+}
+
+void ModuleEditor::UpdatePerformanceLogs()
+{
+	float deltaTime = App->GetDeltaTime();
+
+	float fps = (deltaTime > 0.0f) ? (1.0f / deltaTime) : 0.0f;
+	float ms = deltaTime * 1000.0f;
+
+	fps_log.push_back(fps);
+	ms_log.push_back(ms);
+
+	if (fps_log.size() > max_log_size)
+		fps_log.erase(fps_log.begin());
+	if (ms_log.size() > max_log_size)
+		ms_log.erase(ms_log.begin());
+}
+
+void ModuleEditor::DrawPerformanceGraphs()
+{
+	if (!fps_log.empty())
+	{
+		char fps_title[25];
+		sprintf_s(fps_title, 25, "Framerate %.1f", fps_log.back());
+		ImGui::PlotHistogram("##framerate", &fps_log[0], fps_log.size(), 0, fps_title, 0.0f, 100.0f, ImVec2(310, 100));
+	}
+
+	if (!ms_log.empty())
+	{
+		char ms_title[25];
+		sprintf_s(ms_title, 25, "Milliseconds %.1f", ms_log.back());
+		ImGui::PlotHistogram("##milliseconds", &ms_log[0], ms_log.size(), 0, ms_title, 0.0f, 40.0f, ImVec2(310, 100));
 	}
 }

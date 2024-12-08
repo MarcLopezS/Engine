@@ -25,11 +25,23 @@ public:
 	ImGuiIO* io;
 
 private:
+	void UpdatePerformanceLogs();
+	void DrawPerformanceGraphs();
+	
+	std::vector<float> fps_log;
+	std::vector<float> ms_log;
+	const int max_log_size = 100;
+
+	bool show_config_window;
 	bool show_demo_window;
 	bool show_another_window;
 	ImVec4 clear_color;
 	
 	std::vector<std::string> logs;
 	bool show_log_window = true;
+
+
+
+	
 };
 

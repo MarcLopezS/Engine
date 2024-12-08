@@ -28,7 +28,14 @@ bool ModuleOpenGL::Init()
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
 	context = SDL_GL_CreateContext(App->GetWindow()->window);
-
+	
+	if (SDL_GL_SetSwapInterval(0) != 0) {
+		LOG("Warning: Unable to disable V-Sync! SDL Error: %s", SDL_GetError());
+	}
+	else {
+		LOG("V-Sync disabled");
+	}
+	
 	GLenum err = glewInit();
 
 	LOG("Using Glew %s", glewGetString(GLEW_VERSION));
