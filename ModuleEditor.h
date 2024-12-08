@@ -25,19 +25,10 @@ public:
 	ImGuiIO* io;
 
 private:
-	void UpdatePerformanceLogs();
-	void DrawPerformanceGraphs();
 	void DrawWindowOptions();
 	
-	std::vector<float> fps_log;
-	std::vector<float> ms_log;
-	const int max_log_size = 100;
-
 	bool show_config_window;
-	bool show_demo_window;//demo
-	bool show_another_window;//demo
-	ImVec4 clear_color;//demo
-	
+		
 	std::vector<std::string> logs;
 	bool show_log_window = true;
 
@@ -46,8 +37,8 @@ private:
 	bool resizable = true;
 	bool borderless = false;
 	bool full_desktop = false;
-	int window_width = 1280;
-	int window_height = 720;
+	int window_width = SCREEN_WIDTH;
+	int window_height = SCREEN_HEIGHT;
 	float brightness = 1.0f;
 
 

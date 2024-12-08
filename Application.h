@@ -1,6 +1,7 @@
 #pragma once
 
 #include<list>
+#include <vector>
 #include "Globals.h"
 #include "Module.h"
 #include "SDL.h"
@@ -25,6 +26,7 @@ public:
 	update_status Update();
 	bool CleanUp();
 
+    void ShowPerformanceInfo();
     void ShowHardwareInfo();
 
     ModuleOpenGL* GetOpenGL() { return render; }
@@ -43,6 +45,13 @@ private:
     void CalculateDeltaTime();
     Uint32 lastFrameTime;
     float deltaTime;
+
+    //performance methods & variables
+    void UpdatePerformanceLogs();
+    void DrawPerformanceGraphs();
+    std::vector<float> fps_log;
+    std::vector<float> ms_log;
+    const int max_log_size = 100;
 
     ModuleOpenGL* render = nullptr;
     ModuleRenderExercise* renderEx = nullptr;

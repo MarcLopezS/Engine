@@ -16,7 +16,6 @@
 
 ModuleRenderExercise::ModuleRenderExercise()
 {
-	//mirar esta parte
 	vertexShader = "../Vertex_Shader.glsl";
 	fragmentShader = "../Fragment_Shader.glsl";
 
@@ -48,6 +47,7 @@ bool ModuleRenderExercise::Init()
 
 	CreateTriangleVBO();
 	
+	LOG("Reading Shaders");
 	std::string vertexShaderContent = program->readShaderSource(vertexShader);
 	std::string fragmentShaderContent = program->readShaderSource(fragmentShader);
 	id_program = program->CreateProgram(vertexShaderContent, fragmentShaderContent);

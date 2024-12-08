@@ -27,6 +27,9 @@ Application::Application()
 	deltaTime = 0.0f;
 	lastFrameTime = SDL_GetTicks();
 
+	fps_log.reserve(max_log_size);
+	ms_log.reserve(max_log_size);
+
 }
 
 Application::~Application()
@@ -83,6 +86,21 @@ void Application::CalculateDeltaTime()
 	lastFrameTime = currentFrameTime;
 }
 
+void Application::ShowPerformanceInfo() 
+{
+	if (ImGui::CollapsingHeader("Application"))
+	{
+		UpdatePerformanceLogs();
+		ImGui::InputText("Application Name", const_cast<char*>(TITLE), strlen(TITLE) + 1, ImGuiInputTextFlags_ReadOnly);
+
+		ImGui::Text("Performance Metrics:");
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / editor->io->Framerate, editor->io->Framerate);
+
+		DrawPerformanceGraphs();
+	}
+}
+
+
 void Application::ShowHardwareInfo()
 {
 	if (ImGui::CollapsingHeader("Hardware"))
@@ -95,7 +113,7 @@ void Application::ShowHardwareInfo()
 
 		int cpuCount = SDL_GetCPUCount();
 		int cacheLineSize = SDL_GetCPUCacheLineSize();
-		ImGui::Text("CPUs: %d (Cache: %dkb)", cpuCount, cacheLineSize);
+		ImGui::Text("CPUs: %d (Cache Line Size: %db)", cpuCount, cacheLineSize);
 
 		int ram = SDL_GetSystemRAM();
 		ImGui::Text("System RAM: %dMb", ram);
@@ -142,5 +160,36 @@ void Application::ShowHardwareInfo()
 		ImGui::Text("VRAM Usage: %.1f Mb", usedMemoryKb / 1024.0f);
 		ImGui::Text("VRAM Reserved: %.1f Mb", reservedMemoryKb/1024.0f);
 
+	}
+}
+
+void Application::UpdatePerformanceLogs()
+{
+	float fps = (deltaTime > 0.0f) ? (1.0f / deltaTime) : 0.0f;
+	float ms = deltaTime * 1000.0f;
+
+	fps_log.push_back(fps);
+	ms_log.push_back(ms);
+
+	if (fps_log.size() > max_log_size)
+		fps_log.erase(fps_log.begin());
+	if (ms_log.size() > max_log_size)
+		ms_log.erase(ms_log.begin());
+}
+
+void Application::DrawPerformanceGraphs()
+{
+	if (!fps_log.empty())
+	{
+		char fps_title[25];
+		sprintf_s(fps_title, 25, "Framerate %.1f", fps_log.back());
+		ImGui::PlotHistogram("##framerate", &fps_log[0], fps_log.size(), 0, fps_title, 0.0f, 100.0f, ImVec2(310, 100));
+	}
+
+	if (!ms_log.empty())
+	{
+		char ms_title[25];
+		sprintf_s(ms_title, 25, "Milliseconds %.1f", ms_log.back());
+		ImGui::PlotHistogram("##milliseconds", &ms_log[0], ms_log.size(), 0, ms_title, 0.0f, 40.0f, ImVec2(310, 100));
 	}
 }
