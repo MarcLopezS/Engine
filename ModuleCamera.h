@@ -18,10 +18,10 @@ public:
     bool CleanUp();
 
     void LookAt(const float3& eye, const float3& target, const float3& up);
-    void CalcProjMatrix(const float aspectRatio, const float nearPlane, const float farPlane);
+    void CalcProjMatrix();
 
     void SetFOV(); //Set horizontal FOV, keeping aspect ratio
-    void SetAspectRatio(); //Change vertical FOV to meet new aspect ratio
+    void SetAspectRatio(float newAspectRatio) { aspectRatio = newAspectRatio;  }
     void SetPlaneDistances(); // Set near and far planes
     void SetPosition(); //sets the position where the camera is placed.
     void Setorientation(); //sets the orientation of the camera

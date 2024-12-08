@@ -14,6 +14,9 @@ ModuleCamera::ModuleCamera()
 	
 	yaw = -90.0f;
 	pitch = 0.0f;
+	aspectRatio = 16.0f / 9.0f;
+	nearPlane = 0.1f;
+	farPlane = 100.0f;
 
 }
 
@@ -26,7 +29,7 @@ bool ModuleCamera::Init()
 	LOG("Creating Camera context");
 	bool ret = true;
 	LookAt(frustum.pos, float3(0.0f, 0.0f, 0.0f), frustum.up);
-	CalcProjMatrix(16.0f / 9.0f, 0.1f, 100.0f);
+	CalcProjMatrix();
 
 	return ret;
 }
@@ -168,7 +171,7 @@ void ModuleCamera::LookAt(const float3& eye, const float3& target, const float3&
 
 }
 
-void ModuleCamera::CalcProjMatrix(const float aspectRatio, const float nearPlane, const float farPlane)
+void ModuleCamera::CalcProjMatrix()
 {
 	frustum.type = FrustumType::PerspectiveFrustum;
 

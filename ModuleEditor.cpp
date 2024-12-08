@@ -1,6 +1,7 @@
 #include "ModuleEditor.h"
 #include "ModuleWindow.h"
 #include "ModuleOpenGL.h"
+#include "ModuleCamera.h"
 #include "Application.h"
 #include "SDL.h"
 #include "backends/imgui_impl_sdl2.h"
@@ -12,7 +13,7 @@ ModuleEditor::ModuleEditor()
 	show_demo_window = false;
 	show_another_window = false;
 	show_config_window = false;
-	clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f); //from demo
 	io = nullptr;
 }
 
@@ -83,6 +84,10 @@ update_status ModuleEditor::Update()
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
 
 			DrawPerformanceGraphs(); 
+		}
+		if (ImGui::CollapsingHeader("Window"))
+		{
+			DrawWindowOptions();
 		}
 
 		ImGui::End();
@@ -198,6 +203,8 @@ void ModuleEditor::DrawMenu()
 			{
 				LOG("Opening Configuration Window");
 				show_config_window = !show_config_window;
+				show_window_options = !show_window_options;
+
 			}
 			ImGui::EndMenu();
 		}
@@ -255,4 +262,65 @@ void ModuleEditor::DrawPerformanceGraphs()
 		sprintf_s(ms_title, 25, "Milliseconds %.1f", ms_log.back());
 		ImGui::PlotHistogram("##milliseconds", &ms_log[0], ms_log.size(), 0, ms_title, 0.0f, 40.0f, ImVec2(310, 100));
 	}
+}
+
+void ModuleEditor::DrawWindowOptions()
+{
+	if (!show_window_options)
+		return;
+
+
+	if (ImGui::SliderFloat("Brightness", &brightness, 0.0f, 1.0f))
+	{
+		SDL_SetWindowBrightness(App->GetWindow()->window, brightness);
+	}
+
+	if (!resizable)
+		ImGui::BeginDisabled();
+
+	bool width_changed = ImGui::SliderInt("Width", &window_width, 640, SCREEN_WIDTH);
+	bool height_changed = ImGui::SliderInt("Height", &window_height, 480, SCREEN_HEIGHT);
+
+	if (!resizable)
+		ImGui::EndDisabled();
+
+	if ((width_changed || height_changed) && resizable)
+	{
+		SDL_SetWindowSize(App->GetWindow()->window, window_width, window_height);
+		SDL_Delay(1000);
+		App->GetOpenGL()->WindowResized(window_width, window_height);
+		App->GetModuleCamera()->SetAspectRatio(static_cast<float>(window_width) / window_height);
+		App->GetModuleCamera()->CalcProjMatrix();
+	}
+
+	if (ImGui::Checkbox("Fullscreen", &fullscreen))
+	{
+		if (fullscreen)
+			SDL_SetWindowFullscreen(App->GetWindow()->window, SDL_WINDOW_FULLSCREEN);
+		else
+			SDL_SetWindowFullscreen(App->GetWindow()->window, 0);
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Checkbox("Resizable", &resizable))
+	{
+		SDL_SetWindowResizable(App->GetWindow()->window, (SDL_bool)resizable);
+	}
+
+	if (ImGui::Checkbox("Borderless", &borderless))
+	{
+		SDL_SetWindowBordered(App->GetWindow()->window, (SDL_bool)!borderless);
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Checkbox("Full Desktop", &full_desktop))
+	{
+		if (full_desktop)
+			SDL_SetWindowFullscreen(App->GetWindow()->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		else
+			SDL_SetWindowFullscreen(App->GetWindow()->window, 0);
+	}
+
 }

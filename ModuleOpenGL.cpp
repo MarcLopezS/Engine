@@ -94,5 +94,7 @@ bool ModuleOpenGL::CleanUp()
 
 void ModuleOpenGL::WindowResized(unsigned width, unsigned height)
 {
+	if (width > 0 && height > 0)
+		glViewport(0, 0, width, height);
 }
 
