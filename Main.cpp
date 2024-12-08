@@ -16,6 +16,11 @@ enum main_states
 	MAIN_EXIT
 };
 
+//Use NVIDIA Graphics card instead of defaul one
+extern "C" {
+	__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+}
+
 Application* App = NULL;
 
 int main(int argc, char ** argv)

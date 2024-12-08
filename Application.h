@@ -25,6 +25,8 @@ public:
 	update_status Update();
 	bool CleanUp();
 
+    void ShowHardwareInfo();
+
     ModuleOpenGL* GetOpenGL() { return render; }
     ModuleWindow* GetWindow() { return window; }
     ModuleInput*  GetInput() { return input; }

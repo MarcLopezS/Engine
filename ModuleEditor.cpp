@@ -89,6 +89,7 @@ update_status ModuleEditor::Update()
 		{
 			DrawWindowOptions();
 		}
+		App->ShowHardwareInfo();
 
 		ImGui::End();
 	}
@@ -203,8 +204,6 @@ void ModuleEditor::DrawMenu()
 			{
 				LOG("Opening Configuration Window");
 				show_config_window = !show_config_window;
-				show_window_options = !show_window_options;
-
 			}
 			ImGui::EndMenu();
 		}
@@ -266,9 +265,6 @@ void ModuleEditor::DrawPerformanceGraphs()
 
 void ModuleEditor::DrawWindowOptions()
 {
-	if (!show_window_options)
-		return;
-
 
 	if (ImGui::SliderFloat("Brightness", &brightness, 0.0f, 1.0f))
 	{
@@ -278,19 +274,36 @@ void ModuleEditor::DrawWindowOptions()
 	if (!resizable)
 		ImGui::BeginDisabled();
 
-	bool width_changed = ImGui::SliderInt("Width", &window_width, 640, SCREEN_WIDTH);
-	bool height_changed = ImGui::SliderInt("Height", &window_height, 480, SCREEN_HEIGHT);
+	static int temp_width = window_width;
+	static int temp_height = window_height;
+
+	ImGui::SliderInt("Width", &temp_width, 640, SCREEN_WIDTH);
+	ImGui::SliderInt("Height", &temp_height, 480, SCREEN_HEIGHT);
 
 	if (!resizable)
 		ImGui::EndDisabled();
 
-	if ((width_changed || height_changed) && resizable)
+	if (ImGui::Button("Apply"))
 	{
-		SDL_SetWindowSize(App->GetWindow()->window, window_width, window_height);
-		SDL_Delay(1000);
-		App->GetOpenGL()->WindowResized(window_width, window_height);
-		App->GetModuleCamera()->SetAspectRatio(static_cast<float>(window_width) / window_height);
-		App->GetModuleCamera()->CalcProjMatrix();
+		if ((temp_width != window_width || temp_height != window_height) && resizable)
+		{
+			window_width = temp_width;
+			window_height = temp_height;
+
+			SDL_SetWindowSize(App->GetWindow()->window, window_width, window_height);
+			SDL_Delay(1000);
+			App->GetOpenGL()->WindowResized(window_width, window_height);
+			App->GetModuleCamera()->SetAspectRatio(static_cast<float>(window_width) / window_height);
+			App->GetModuleCamera()->CalcProjMatrix();
+		}
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("Reset"))
+	{
+		temp_width = SCREEN_WIDTH;
+		temp_height = SCREEN_HEIGHT;
 	}
 
 	if (ImGui::Checkbox("Fullscreen", &fullscreen))

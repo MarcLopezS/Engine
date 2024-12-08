@@ -34,7 +34,6 @@ private:
 	const int max_log_size = 100;
 
 	bool show_config_window;
-	bool show_window_options = false;
 	bool show_demo_window;//demo
 	bool show_another_window;//demo
 	ImVec4 clear_color;//demo
