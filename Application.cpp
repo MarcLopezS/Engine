@@ -16,19 +16,19 @@ using namespace std;
 Application::Application()
 {
 	// Order matters: they will Init/start/update in this order
-	modules.push_back(window = new ModuleWindow());
-	modules.push_back(render = new ModuleOpenGL());
-	modules.push_back(debugDraw = new ModuleDebugDraw());
-	modules.push_back(renderEx = new ModuleRenderExercise());
-	modules.push_back(editor = new ModuleEditor());
-	modules.push_back(input = new ModuleInput());
-	modules.push_back(camera = new ModuleCamera());
+	modules.push_back(_window = new ModuleWindow());
+	modules.push_back(_render = new ModuleOpenGL());
+	modules.push_back(_debugDraw = new ModuleDebugDraw());
+	modules.push_back(_renderEx = new ModuleRenderExercise());
+	modules.push_back(_editor = new ModuleEditor());
+	modules.push_back(_input = new ModuleInput());
+	modules.push_back(_camera = new ModuleCamera());
 
-	deltaTime = 0.0f;
-	lastFrameTime = SDL_GetTicks();
+	_deltaTime = 0.0f;
+	_lastFrameTime = SDL_GetTicks();
 
-	fps_log.reserve(max_log_size);
-	ms_log.reserve(max_log_size);
+	_fps_log.reserve(_max_log_size);
+	_ms_log.reserve(_max_log_size);
 
 }
 
@@ -82,8 +82,8 @@ bool Application::CleanUp()
 void Application::CalculateDeltaTime()
 {
 	Uint32 currentFrameTime = SDL_GetTicks();
-	deltaTime = (currentFrameTime - lastFrameTime) / 1000.0f;
-	lastFrameTime = currentFrameTime;
+	_deltaTime = (currentFrameTime - _lastFrameTime) / 1000.0f;
+	_lastFrameTime = currentFrameTime;
 }
 
 void Application::ShowPerformanceInfo() 
@@ -94,7 +94,7 @@ void Application::ShowPerformanceInfo()
 		ImGui::InputText("Application Name", const_cast<char*>(TITLE), strlen(TITLE) + 1, ImGuiInputTextFlags_ReadOnly);
 
 		ImGui::Text("Performance Metrics:");
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / editor->io->Framerate, editor->io->Framerate);
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / _editor->io->Framerate, _editor->io->Framerate);
 
 		DrawPerformanceGraphs();
 	}
@@ -165,31 +165,31 @@ void Application::ShowHardwareInfo()
 
 void Application::UpdatePerformanceLogs()
 {
-	float fps = (deltaTime > 0.0f) ? (1.0f / deltaTime) : 0.0f;
-	float ms = deltaTime * 1000.0f;
+	float fps = (_deltaTime > 0.0f) ? (1.0f / _deltaTime) : 0.0f;
+	float ms = _deltaTime * 1000.0f;
 
-	fps_log.push_back(fps);
-	ms_log.push_back(ms);
+	_fps_log.push_back(fps);
+	_ms_log.push_back(ms);
 
-	if (fps_log.size() > max_log_size)
-		fps_log.erase(fps_log.begin());
-	if (ms_log.size() > max_log_size)
-		ms_log.erase(ms_log.begin());
+	if (_fps_log.size() > _max_log_size)
+		_fps_log.erase(_fps_log.begin());
+	if (_ms_log.size() > _max_log_size)
+		_ms_log.erase(_ms_log.begin());
 }
 
 void Application::DrawPerformanceGraphs()
 {
 	char title[25];
 
-	if (!fps_log.empty())
+	if (!_fps_log.empty())
 	{
-		sprintf_s(title, 25, "Framerate %.1f", fps_log.back());
-		ImGui::PlotHistogram("##framerate", &fps_log[0], fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
+		sprintf_s(title, 25, "Framerate %.1f", _fps_log.back());
+		ImGui::PlotHistogram("##framerate", &_fps_log[0], _fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
 	}
 
-	if (!ms_log.empty())
+	if (!_ms_log.empty())
 	{
-		sprintf_s(title, 25, "Milliseconds %.1f", ms_log.back());
-		ImGui::PlotHistogram("##milliseconds", &ms_log[0], ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));
+		sprintf_s(title, 25, "Milliseconds %.1f", _ms_log.back());
+		ImGui::PlotHistogram("##milliseconds", &_ms_log[0], _ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));
 	}
 }

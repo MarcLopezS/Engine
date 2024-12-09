@@ -21,17 +21,18 @@ public:
 	void AddLog(const char* log);
 	void RenderLogWindow();
 	void DrawMenu();
+	//void ShowInput();
 
 	ImGuiIO* io;
 
 private:
 	void ShowAbout();
 
-	bool show_config_window;
-	bool show_about_window;
+	bool is_config_window;
+	bool is_about_window;
 		
-	std::vector<std::string> logs;
-	bool show_log_window = true;
+	std::vector<std::string> _logs;
+	bool is_log_window;
 
 };
 

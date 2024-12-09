@@ -6,8 +6,8 @@
 
 ModuleProgram::ModuleProgram(const std::string& vs, const std::string& fs)
 {
-	vertexSource = vs;
-	fragmentSource = fs;
+	_vertexSource = vs;
+	_fragmentSource = fs;
 }
 
 ModuleProgram::~ModuleProgram()

@@ -29,37 +29,37 @@ public:
     void ShowPerformanceInfo();
     void ShowHardwareInfo();
 
-    ModuleOpenGL* GetOpenGL() { return render; }
-    ModuleWindow* GetWindow() { return window; }
-    ModuleInput*  GetInput() { return input; }
-    ModuleOpenGL* GetRender() { return render; }
-    ModuleRenderExercise* GetModuleRenderExcercise() { return renderEx; }
-    ModuleCamera* GetModuleCamera() { return camera; }
-    ModuleDebugDraw* GetModuleDebugDraw() { return debugDraw; }
-    ModuleInput* GetModuleInput() { return input; }
-    ModuleEditor* GetModuleEditor() { return editor; }
+    ModuleOpenGL* GetOpenGL() { return _render; }
+    ModuleWindow* GetWindow() { return _window; }
+    ModuleInput* GetModuleInput() { return _input; }
+    ModuleOpenGL* GetRender() { return _render; }
+    ModuleRenderExercise* GetModuleRenderExcercise() { return _renderEx; }
+    ModuleCamera* GetModuleCamera() { return _camera; }
+    ModuleDebugDraw* GetModuleDebugDraw() { return _debugDraw; }
+    ModuleEditor* GetModuleEditor() { return _editor; }
 
-    float GetDeltaTime() { return deltaTime; }
+    float GetDeltaTime() { return _deltaTime; }
 
 private:
     void CalculateDeltaTime();
-    Uint32 lastFrameTime;
-    float deltaTime;
+    
+    Uint32 _lastFrameTime;
+    float _deltaTime;
 
     //performance methods & variables
     void UpdatePerformanceLogs();
     void DrawPerformanceGraphs();
-    std::vector<float> fps_log;
-    std::vector<float> ms_log;
-    const int max_log_size = 100;
+    std::vector<float> _fps_log;
+    std::vector<float> _ms_log;
+    const int _max_log_size = 100;
 
-    ModuleOpenGL* render = nullptr;
-    ModuleRenderExercise* renderEx = nullptr;
-    ModuleWindow* window = nullptr;
-    ModuleInput* input = nullptr;
-    ModuleDebugDraw* debugDraw = nullptr;
-    ModuleCamera* camera = nullptr;
-    ModuleEditor* editor = nullptr;
+    ModuleOpenGL* _render = nullptr;
+    ModuleRenderExercise* _renderEx = nullptr;
+    ModuleWindow* _window = nullptr;
+    ModuleInput* _input = nullptr;
+    ModuleDebugDraw* _debugDraw = nullptr;
+    ModuleCamera* _camera = nullptr;
+    ModuleEditor* _editor = nullptr;
 
     std::list<Module*> modules;
 

@@ -21,40 +21,39 @@ public:
     void CalcProjMatrix();
 
     void SetFOV(); //Set horizontal FOV, keeping aspect ratio
-    void SetAspectRatio(float newAspectRatio) { aspectRatio = newAspectRatio;  }
+    void SetAspectRatio(float newAspectRatio) { _aspectRatio = newAspectRatio;  }
     void SetPlaneDistances(); // Set near and far planes
     void SetPosition(); //sets the position where the camera is placed.
-    void Setorientation(); //sets the orientation of the camera
+    void SetOrientation(); //sets the orientation of the camera
     void SetLookAt();// change the name of the function, tells where is looking the camera
 
     void MovKeyboardController(); //Movement controller by keyboard
     void MovMouseController(); //Movement controller by mouse
 
-    float4x4 GetViewMatrix() const { return viewMatrix; }
-    float4x4 GetProjMatrix() const { return projMatrix; }
+    float4x4 GetViewMatrix() const { return _viewMatrix; }
+    float4x4 GetProjMatrix() const { return _projMatrix; }
 
 
 private:
 
-    float fov;
-    float aspectRatio;
-    float nearPlane;
-    float farPlane;
+    float _fov;
+    float _aspectRatio;
+    float _nearPlane;
+    float _farPlane;
 
-    Frustum frustum;
+    Frustum _frustum;
 
-    float yaw;
-    float pitch;
+    float _yaw;
+    float _pitch;
 
-    float4x4 viewMatrix;
-    float4x4 projMatrix;
-    float4x4 rotationMatrix;
+    float4x4 _viewMatrix;
+    float4x4 _projMatrix;
+    float4x4 _rotationMatrix;
 
-    float deltaTime;
-    float lastFrame;
-    float cameraSpeed;
-    float rotationSpeed;
-    float sensitivity;
+    float _deltaTime;
+    float _cameraSpeed;
+    float _rotationSpeed;
+    float _sensitivity;
 
 };
 

@@ -17,21 +17,21 @@ public:
 	update_status Update();
 	update_status PostUpdate();
 	bool CleanUp();
-	void* GetContext() { return context; }
+	void* GetContext() { return _context; }
 	void WindowResized(unsigned width, unsigned height);
 
 	void DrawWindowOptions();
 
 private:
 
-	void* context;
+	void* _context;
 
 	//window options
-	bool fullscreen = false;
-	bool resizable = true;
-	bool borderless = false;
-	bool full_desktop = false;
-	int window_width = SCREEN_WIDTH;
-	int window_height = SCREEN_HEIGHT;
-	float brightness = 1.0f;
+	bool is_fullscreen = false;
+	bool is_resizable = true;
+	bool is_borderless = false;
+	bool is_full_desktop = false;
+	int _window_width = SCREEN_WIDTH;
+	int _window_height = SCREEN_HEIGHT;
+	float _brightness = 1.0f;
 };

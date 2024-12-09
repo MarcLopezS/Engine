@@ -10,16 +10,16 @@
 
 ModuleInput::ModuleInput()
 {
-	keyState = new KeyState[MAX_KEYS];
-	memset(keyState, KEY_IDLE, sizeof(KeyState) * MAX_KEYS);
-	memset(mouse_buttons, KEY_IDLE, sizeof(KeyState) * NUM_MOUSE_BUTTONS);
+	_keyState = new KeyState[MAX_KEYS];
+	memset(_keyState, KEY_IDLE, sizeof(KeyState) * MAX_KEYS);
+	memset(_mouse_buttons, KEY_IDLE, sizeof(KeyState) * NUM_MOUSE_BUTTONS);
 
 }
 
 // Destructor
 ModuleInput::~ModuleInput()
 {
-	RELEASE_ARRAY(keyState);
+	RELEASE_ARRAY(_keyState);
 }
 
 // Called before render is available
@@ -43,7 +43,7 @@ update_status ModuleInput::PreUpdate()
 {
 	SDL_Event sdlEvent;
 
-	mouse_motion = { 0, 0 };
+	_mouse_motion = { 0, 0 };
 
 	while (SDL_PollEvent(&sdlEvent) != 0)
 	{
@@ -59,51 +59,51 @@ update_status ModuleInput::PreUpdate()
 				App->GetOpenGL()->WindowResized(sdlEvent.window.data1, sdlEvent.window.data2);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			mouse_buttons[sdlEvent.button.button - 1] = KEY_DOWN;
+			_mouse_buttons[sdlEvent.button.button - 1] = KEY_DOWN;
 			break;
 
 		case SDL_MOUSEBUTTONUP:
-			mouse_buttons[sdlEvent.button.button - 1] = KEY_UP;
+			_mouse_buttons[sdlEvent.button.button - 1] = KEY_UP;
 			break;
 
 		case SDL_MOUSEMOTION:
-			mouse_motion.x = sdlEvent.motion.xrel / SCREEN_SIZE;
-			mouse_motion.y = sdlEvent.motion.yrel / SCREEN_SIZE;
-			mouse.x = sdlEvent.motion.x / SCREEN_SIZE;
-			mouse.y = sdlEvent.motion.y / SCREEN_SIZE;
+			_mouse_motion.x = sdlEvent.motion.xrel / SCREEN_SIZE;
+			_mouse_motion.y = sdlEvent.motion.yrel / SCREEN_SIZE;
+			_mouse.x = sdlEvent.motion.x / SCREEN_SIZE;
+			_mouse.y = sdlEvent.motion.y / SCREEN_SIZE;
 			break;
 		}
 
 
 	}
 
-	keyboard = SDL_GetKeyboardState(NULL);
+	_keyboard = SDL_GetKeyboardState(NULL);
 
 	for (int i = 0; i < MAX_KEYS; ++i)
 	{
-		if (keyboard[i] == 1)
+		if (_keyboard[i] == 1)
 		{
-			if (keyState[i] == KEY_IDLE)
-				keyState[i] = KEY_DOWN;
+			if (_keyState[i] == KEY_IDLE)
+				_keyState[i] = KEY_DOWN;
 			else
-				keyState[i] = KEY_REPEAT;
+				_keyState[i] = KEY_REPEAT;
 		}
 		else
 		{
-			if (keyState[i] == KEY_REPEAT || keyState[i] == KEY_DOWN)
-				keyState[i] = KEY_UP;
+			if (_keyState[i] == KEY_REPEAT || _keyState[i] == KEY_DOWN)
+				_keyState[i] = KEY_UP;
 			else
-				keyState[i] = KEY_IDLE;
+				_keyState[i] = KEY_IDLE;
 		}
 	}
 
 	for (int i = 0; i < NUM_MOUSE_BUTTONS; ++i)
 	{
-		if (mouse_buttons[i] == KEY_DOWN)
-			mouse_buttons[i] = KEY_REPEAT;
+		if (_mouse_buttons[i] == KEY_DOWN)
+			_mouse_buttons[i] = KEY_REPEAT;
 
-		if (mouse_buttons[i] == KEY_UP)
-			mouse_buttons[i] = KEY_IDLE;
+		if (_mouse_buttons[i] == KEY_UP)
+			_mouse_buttons[i] = KEY_IDLE;
 	}
 
 
@@ -115,9 +115,6 @@ update_status ModuleInput::PreUpdate()
 update_status ModuleInput::Update()
 {
 
-
-
-    
     return UPDATE_CONTINUE;
 }
 
@@ -131,10 +128,10 @@ bool ModuleInput::CleanUp()
 
 const Point& ModuleInput::GetMousePosition() const
 {
-	return mouse;
+	return _mouse;
 }
 
 const Point& ModuleInput::GetMouseMotion() const
 {
-	return mouse_motion;
+	return _mouse_motion;
 }

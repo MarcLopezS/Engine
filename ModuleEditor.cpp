@@ -11,8 +11,9 @@
 
 ModuleEditor::ModuleEditor() 
 {
-	show_config_window = false;
-	show_about_window = false;
+	is_config_window = false;
+	is_about_window = false;
+	is_log_window = false;
 	io = nullptr;
 }
 
@@ -47,12 +48,12 @@ update_status ModuleEditor::Update()
 {
 	DrawMenu();
 
-	if (show_log_window)
+	if (is_log_window)
 		RenderLogWindow();
 
-	if (show_config_window)
+	if (is_config_window)
 	{
-		ImGui::Begin("Configuration",&show_config_window);
+		ImGui::Begin("Configuration",&is_config_window);
 		ImGui::Text("Options");
 
 		App->ShowPerformanceInfo();
@@ -64,7 +65,7 @@ update_status ModuleEditor::Update()
 		ImGui::End();
 	}
 
-	if (show_about_window)
+	if (is_about_window)
 		ShowAbout();
 
 	// Rendering
@@ -93,20 +94,20 @@ bool ModuleEditor::CleanUp()
 
 void ModuleEditor::AddLog(const char* log)
 {
-	logs.push_back(log); 
-	if (logs.size() > 1000) 
+	_logs.push_back(log); 
+	if (_logs.size() > 1000) 
 	{
-		logs.erase(logs.begin()); 
+		_logs.erase(_logs.begin()); 
 	}
 }
 
 void ModuleEditor::RenderLogWindow()
 {
-	if (!show_log_window) return;
+	if (!is_log_window) return;
 
-	ImGui::Begin("Console", &show_log_window);
+	ImGui::Begin("Console", &is_log_window);
 
-	for (const auto& log : logs)
+	for (const auto& log : _logs)
 	{
 		ImGui::TextUnformatted(log.c_str());
 	}
@@ -144,7 +145,7 @@ void ModuleEditor::DrawMenu()
 		{
 			if (ImGui::MenuItem("Show Console"))
 			{
-				show_log_window = !show_log_window;
+				is_log_window = !is_log_window;
 			}
 			ImGui::EndMenu(); 
 		}
@@ -153,7 +154,7 @@ void ModuleEditor::DrawMenu()
 			if (ImGui::MenuItem("Show Configuration"))
 			{
 				LOG("Opening Configuration Window");
-				show_config_window = !show_config_window;
+				is_config_window = !is_config_window;
 			}
 			ImGui::EndMenu();
 		}
@@ -167,7 +168,7 @@ void ModuleEditor::DrawMenu()
 			if (ImGui::MenuItem("About"))
 			{
 				LOG("Showing About details");
-				show_about_window = !show_about_window;
+				is_about_window = !is_about_window;
 			}
 			ImGui::EndMenu(); 
 		}
@@ -178,7 +179,7 @@ void ModuleEditor::DrawMenu()
 
 void ModuleEditor::ShowAbout()
 {
-	ImGui::Begin("About", &show_about_window);
+	ImGui::Begin("About", &is_about_window);
 
 	ImGui::Text("Engine Name: %s", TITLE);
 	ImGui::Text("Description: %s", "example text"); //TODO
@@ -204,3 +205,12 @@ void ModuleEditor::ShowAbout()
 	ImGui::End();
 
 }
+
+
+//void ModuleEditor::ShowInput() 
+//{
+//	if (ImGui::CollapsingHeader("Input"))
+//	{
+//
+//	}
+//}

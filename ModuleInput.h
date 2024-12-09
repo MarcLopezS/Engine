@@ -51,18 +51,18 @@ public:
 	bool CleanUp();
 
     //Check the key states
-    KeyState GetKey(int id) const { return keyState[id]; }
-    KeyState GetMouseButtonDown(int id) const { return mouse_buttons[id - 1]; }
+    KeyState GetKey(int id) const { return _keyState[id]; }
+    KeyState GetMouseButtonDown(int id) const { return _mouse_buttons[id - 1]; }
 
     // Get mouse / axis position
     const Point& GetMouseMotion() const;
     const Point& GetMousePosition() const;
 
 private:
-	const Uint8 *keyboard = NULL;
-    KeyState* keyState;
-    KeyState	mouse_buttons[NUM_MOUSE_BUTTONS];
-    Point mouse_motion;
-    Point mouse;
+	const Uint8 *_keyboard = NULL;
+    KeyState* _keyState;
+    KeyState	_mouse_buttons[NUM_MOUSE_BUTTONS];
+    Point _mouse_motion;
+    Point _mouse;
 
 };

@@ -25,20 +25,20 @@ public:
     void CreateTriangleVBO();
     void DestroyVBO();
 
-    ModuleProgram* GetProgram() { return program; }
-    float4x4 GetViewMatrix() const { return view; }
-    float4x4 GetProjMatrix() const { return proj; }
+    ModuleProgram* GetProgram() { return _program; }
+    float4x4 GetViewMatrix() const { return _view; }
+    float4x4 GetProjMatrix() const { return _proj; }
 
 
 private:
-    SDL_Renderer* renderer = nullptr;
-    ModuleProgram* program = nullptr;
-    unsigned int id_program;
-    unsigned int vbo;
-    float4x4 view;
-    float4x4 proj;
-    std::string vertexShader;
-    std::string fragmentShader;
+    SDL_Renderer* _renderer = nullptr;
+    ModuleProgram* _program = nullptr;
+    unsigned int _id_program;
+    unsigned int _vbo;
+    float4x4 _view;
+    float4x4 _proj;
+    std::string _vertexShader;
+    std::string _fragmentShader;
 
 };
 

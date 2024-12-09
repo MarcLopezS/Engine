@@ -16,10 +16,10 @@
 
 ModuleRenderExercise::ModuleRenderExercise()
 {
-	vertexShader = "../Vertex_Shader.glsl";
-	fragmentShader = "../Fragment_Shader.glsl";
+	_vertexShader = "../Vertex_Shader.glsl";
+	_fragmentShader = "../Fragment_Shader.glsl";
 
-	program = new ModuleProgram(vertexShader, fragmentShader);
+	_program = new ModuleProgram(_vertexShader, _fragmentShader);
 }
 
 ModuleRenderExercise::~ModuleRenderExercise()
@@ -37,9 +37,9 @@ bool ModuleRenderExercise::Init()
 		flags |= SDL_RENDERER_PRESENTVSYNC;
 	}
 
-	renderer = SDL_CreateRenderer(App->GetWindow()->window, -1, flags);
+	_renderer = SDL_CreateRenderer(App->GetWindow()->window, -1, flags);
 
-	if (renderer == nullptr)
+	if (_renderer == nullptr)
 	{
 		LOG("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
 		ret = false;
@@ -48,17 +48,17 @@ bool ModuleRenderExercise::Init()
 	CreateTriangleVBO();
 	
 	LOG("Reading Shaders");
-	std::string vertexShaderContent = program->readShaderSource(vertexShader);
-	std::string fragmentShaderContent = program->readShaderSource(fragmentShader);
-	id_program = program->CreateProgram(vertexShaderContent, fragmentShaderContent);
+	std::string vertexShaderContent = _program->readShaderSource(_vertexShader);
+	std::string fragmentShaderContent = _program->readShaderSource(_fragmentShader);
+	_id_program = _program->CreateProgram(vertexShaderContent, fragmentShaderContent);
 
 	GLint status;
-	glGetProgramiv(id_program, GL_LINK_STATUS, &status);
+	glGetProgramiv(_id_program, GL_LINK_STATUS, &status);
 	
 	if (status == GL_FALSE)
 	{
 		GLchar strInfoLog[1024] = { 0 };
-		glGetProgramInfoLog(id_program, sizeof(strInfoLog) - 1, nullptr, strInfoLog);
+		glGetProgramInfoLog(_id_program, sizeof(strInfoLog) - 1, nullptr, strInfoLog);
 		LOG("Shader linking error: %s", strInfoLog);
 	}
 	glEnable(GL_DEPTH_TEST);
@@ -70,29 +70,29 @@ bool ModuleRenderExercise::Init()
 update_status ModuleRenderExercise::Update()
 {
 	float4x4 model = float4x4::FromTRS(float3(0.0f, 1.0f, -1.0f), float4x4::RotateZ(static_cast<float>(M_PI) / 4.0f), float3(1.0f, 1.0f, 1.0f));
-	view = App->GetModuleCamera()->GetViewMatrix();
-	proj = App->GetModuleCamera()->GetProjMatrix();
+	_view = App->GetModuleCamera()->GetViewMatrix();
+	_proj = App->GetModuleCamera()->GetProjMatrix();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	App->GetModuleDebugDraw()->Draw(view, proj, SCREEN_WIDTH, SCREEN_HEIGHT);
+	App->GetModuleDebugDraw()->Draw(_view, _proj, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
-	glUseProgram(id_program); // Restore triangle shader
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glUseProgram(_id_program); // Restore triangle shader
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	GLint modelLoc = glGetUniformLocation(id_program, "model");
-	GLint viewLoc = glGetUniformLocation(id_program, "view");
-	GLint projLoc = glGetUniformLocation(id_program, "proj");
+	GLint modelLoc = glGetUniformLocation(_id_program, "model");
+	GLint viewLoc = glGetUniformLocation(_id_program, "view");
+	GLint projLoc = glGetUniformLocation(_id_program, "proj");
 
 	if (modelLoc == -1 || viewLoc == -1 || projLoc == -1) {
 		LOG("Error: Uniforms shaders location not found.");
 	}
 
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &model[0][0]);
-	glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &view[0][0]);
-	glUniformMatrix4fv(projLoc, 1, GL_TRUE, &proj[0][0]);
+	glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &_view[0][0]);
+	glUniformMatrix4fv(projLoc, 1, GL_TRUE, &_proj[0][0]);
 	
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -121,8 +121,8 @@ void ModuleRenderExercise::CreateTriangleVBO()
 		 0.0f,  1.0f,  0.0f
 	};
 
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glGenBuffers(1, &_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 	glBufferData(GL_ARRAY_BUFFER,sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
 
 }
@@ -130,5 +130,5 @@ void ModuleRenderExercise::CreateTriangleVBO()
 //function called one time at destruction of vertex buffer
 void ModuleRenderExercise::DestroyVBO()
 {
-	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &_vbo);
 }

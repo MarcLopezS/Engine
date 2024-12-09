@@ -8,15 +8,15 @@
 
 ModuleCamera::ModuleCamera()
 {
-	frustum.pos = float3(0.0f, 3.0f, 6.0f);
-	frustum.front = -float3::unitZ;
-	frustum.up = float3::unitY;
+	_frustum.pos = float3(0.0f, 3.0f, 6.0f);
+	_frustum.front = -float3::unitZ;
+	_frustum.up = float3::unitY;
 	
-	yaw = -90.0f;
-	pitch = 0.0f;
-	aspectRatio = 16.0f / 9.0f;
-	nearPlane = 0.1f;
-	farPlane = 100.0f;
+	_yaw = -90.0f;
+	_pitch = 0.0f;
+	_aspectRatio = 16.0f / 9.0f;
+	_nearPlane = 0.1f;
+	_farPlane = 100.0f;
 
 }
 
@@ -28,7 +28,7 @@ bool ModuleCamera::Init()
 {
 	LOG("Creating Camera context");
 	bool ret = true;
-	LookAt(frustum.pos, float3(0.0f, 0.0f, 0.0f), frustum.up);
+	LookAt(_frustum.pos, float3(0.0f, 0.0f, 0.0f), _frustum.up);
 	CalcProjMatrix();
 
 	return ret;
@@ -37,36 +37,36 @@ bool ModuleCamera::Init()
 //Catch input through moduleInput and do some actions
 update_status ModuleCamera::Update()
 {
-	deltaTime = App->GetDeltaTime();
-	cameraSpeed = 4.0f;
-	rotationSpeed = 60.0f;		
-	sensitivity = 20.0f;
+	_deltaTime = App->GetDeltaTime();
+	_cameraSpeed = 4.0f;
+	_rotationSpeed = 60.0f;		
+	_sensitivity = 20.0f;
 
 
 	//detect if shift key is pressed, then multiply speed movement
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT ||
 		App->GetModuleInput()->GetKey(SDL_SCANCODE_RSHIFT) == KEY_REPEAT) {
 
-		cameraSpeed *= 3.0f;
-		rotationSpeed *= 3.0f;
-		sensitivity *= 2.0f;
+		_cameraSpeed *= 3.0f;
+		_rotationSpeed *= 3.0f;
+		_sensitivity *= 2.0f;
 	}
 
 	//Movement Drag and Zoom
 	MovKeyboardController();
 	MovMouseController();
 	
-	pitch = max(-89.0f, min(89.0f, pitch));
+	_pitch = max(-89.0f, min(89.0f, _pitch));
 
 	float3 newForward;
-	newForward.x = cosf(DEG_TO_RAD(yaw)) * cosf(DEG_TO_RAD(pitch));
-	newForward.y = sinf(DEG_TO_RAD(pitch));
-	newForward.z = sinf(DEG_TO_RAD(yaw)) * cosf(DEG_TO_RAD(pitch));
+	newForward.x = cosf(DEG_TO_RAD(_yaw)) * cosf(DEG_TO_RAD(_pitch));
+	newForward.y = sinf(DEG_TO_RAD(_pitch));
+	newForward.z = sinf(DEG_TO_RAD(_yaw)) * cosf(DEG_TO_RAD(_pitch));
 
-	frustum.front = newForward.Normalized();
-	frustum.up = frustum.WorldRight().Cross(frustum.front).Normalized();
+	_frustum.front = newForward.Normalized();
+	_frustum.up = _frustum.WorldRight().Cross(_frustum.front).Normalized();
 	
-	LookAt(frustum.pos, frustum.pos + frustum.front, frustum.up);
+	LookAt(_frustum.pos, _frustum.pos + _frustum.front, _frustum.up);
 	
 	return UPDATE_CONTINUE;
 }
@@ -85,27 +85,27 @@ void ModuleCamera::MovKeyboardController()
 	
 	//Movement
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
-		frustum.pos += frustum.front * cameraSpeed * deltaTime;
+		_frustum.pos += _frustum.front * _cameraSpeed * _deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_S) == KEY_REPEAT)
-		frustum.pos -= frustum.front * cameraSpeed * deltaTime;
+		_frustum.pos -= _frustum.front * _cameraSpeed * _deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT)
-		frustum.pos += frustum.up * cameraSpeed * deltaTime;
+		_frustum.pos += _frustum.up * _cameraSpeed * _deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_E) == KEY_REPEAT)
-		frustum.pos -= frustum.up * cameraSpeed * deltaTime;
+		_frustum.pos -= _frustum.up * _cameraSpeed * _deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
-		frustum.pos -= frustum.WorldRight() * cameraSpeed * deltaTime;
+		_frustum.pos -= _frustum.WorldRight() * _cameraSpeed * _deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
-		frustum.pos += frustum.WorldRight() * cameraSpeed * deltaTime;
+		_frustum.pos += _frustum.WorldRight() * _cameraSpeed * _deltaTime;
 	
 	//Rotation
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT)
-		pitch += rotationSpeed * deltaTime;
+		_pitch += _rotationSpeed * _deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
-		pitch -= rotationSpeed * deltaTime;
+		_pitch -= _rotationSpeed * _deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
-		yaw += rotationSpeed * deltaTime;
+		_yaw += _rotationSpeed * _deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
-		yaw -= rotationSpeed * deltaTime;
+		_yaw -= _rotationSpeed * _deltaTime;
 }
 
 void ModuleCamera::MovMouseController()
@@ -119,8 +119,8 @@ void ModuleCamera::MovMouseController()
 	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT ||
 		App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_MIDDLE) == KEY_REPEAT) 
 	{
-		frustum.pos += frustum.WorldRight() * -mouseDelta.x * sensitivity * deltaTime;
-		frustum.pos += frustum.up * mouseDelta.y * sensitivity * deltaTime;
+		_frustum.pos += _frustum.WorldRight() * -mouseDelta.x * _sensitivity * _deltaTime;
+		_frustum.pos += _frustum.up * mouseDelta.y * _sensitivity * _deltaTime;
 	}
 
 
@@ -128,12 +128,12 @@ void ModuleCamera::MovMouseController()
 	{
 		if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT) //zoom
 		{
-			sensitivity = 80.0f;
+			_sensitivity = 80.0f;
 			float zoomFactor = 0.0f;
-			if (mouseDelta.y > 0 || mouseDelta.x < 0) zoomFactor = -sensitivity * deltaTime;
-			else if (mouseDelta.y < 0 || mouseDelta.x > 0) zoomFactor = sensitivity * deltaTime;
+			if (mouseDelta.y > 0 || mouseDelta.x < 0) zoomFactor = -_sensitivity * _deltaTime;
+			else if (mouseDelta.y < 0 || mouseDelta.x > 0) zoomFactor = _sensitivity * _deltaTime;
 
-			frustum.pos += frustum.front * zoomFactor;
+			_frustum.pos += _frustum.front * zoomFactor;
 		}
 		else //rotation
 		{
@@ -143,8 +143,8 @@ void ModuleCamera::MovMouseController()
 
 			float sensitivityFactor = 10.0f; 
 
-			yaw += deltaX * sensitivityFactor * rotationSpeed * deltaTime;;
-			pitch -= deltaY * sensitivityFactor * rotationSpeed * deltaTime;
+			_yaw += deltaX * sensitivityFactor * _rotationSpeed * _deltaTime;;
+			_pitch -= deltaY * sensitivityFactor * _rotationSpeed * _deltaTime;
 
 		}
 	}
@@ -166,21 +166,21 @@ void ModuleCamera::LookAt(const float3& eye, const float3& target, const float3&
 
 
 	float4x4 translation_matrix = float4x4::Translate(-eye);
-	rotationMatrix = camera_matrix.Transposed();
-	viewMatrix = rotationMatrix * translation_matrix;
+	_rotationMatrix = camera_matrix.Transposed();
+	_viewMatrix = _rotationMatrix * translation_matrix;
 
 }
 
 void ModuleCamera::CalcProjMatrix()
 {
-	frustum.type = FrustumType::PerspectiveFrustum;
+	_frustum.type = FrustumType::PerspectiveFrustum;
 
-	frustum.nearPlaneDistance = nearPlane;
-	frustum.farPlaneDistance = farPlane;
-	frustum.verticalFov = M_PI / 4.0f; //45 degrees
-	frustum.horizontalFov = 2.f * atanf(tanf(frustum.verticalFov * 0.5f) * aspectRatio);
+	_frustum.nearPlaneDistance = _nearPlane;
+	_frustum.farPlaneDistance = _farPlane;
+	_frustum.verticalFov = M_PI / 4.0f; //45 degrees
+	_frustum.horizontalFov = 2.f * atanf(tanf(_frustum.verticalFov * 0.5f) * _aspectRatio);
 
-	projMatrix = frustum.ProjectionMatrix();
+	_projMatrix = _frustum.ProjectionMatrix();
 	
 }
 

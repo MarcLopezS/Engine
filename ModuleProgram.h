@@ -19,13 +19,13 @@ public:
     unsigned int CompileShader(unsigned int type, const std::string& source);
     unsigned int CreateProgram(const std::string& vertexShader, const std::string& fragmentShader);
 
-    const std::string GetVertexSource() { return vertexSource; }
-    const std::string GetFragmentSource() { return fragmentSource; }
+    const std::string GetVertexSource() { return _vertexSource; }
+    const std::string GetFragmentSource() { return _fragmentSource; }
 
 
 private:
-    std::string vertexSource;
-    std::string fragmentSource;
+    std::string _vertexSource;
+    std::string _fragmentSource;
 
 };
 

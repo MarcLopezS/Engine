@@ -29,7 +29,7 @@ bool ModuleOpenGL::Init()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-	context = SDL_GL_CreateContext(App->GetWindow()->window);
+	_context = SDL_GL_CreateContext(App->GetWindow()->window);
 	
 	if (SDL_GL_SetSwapInterval(0) != 0) {
 		LOG("Warning: Unable to disable V-Sync! SDL Error: %s", SDL_GetError());
@@ -89,7 +89,7 @@ bool ModuleOpenGL::CleanUp()
 	LOG("Destroying renderer");
 
 	//Destroy window
-	SDL_GL_DeleteContext(context);
+	SDL_GL_DeleteContext(_context);
 
 	return true;
 }
@@ -104,32 +104,32 @@ void ModuleOpenGL::DrawWindowOptions()
 {
 	if (ImGui::CollapsingHeader("Window"))
 	{
-		if (ImGui::SliderFloat("Brightness", &brightness, 0.0f, 1.0f))
-			SDL_SetWindowBrightness(App->GetWindow()->window, brightness);
+		if (ImGui::SliderFloat("Brightness", &_brightness, 0.0f, 1.0f))
+			SDL_SetWindowBrightness(App->GetWindow()->window, _brightness);
 
-		if (!resizable)
+		if (!is_resizable)
 			ImGui::BeginDisabled();
 
-		static int temp_width = window_width;
-		static int temp_height = window_height;
+		static int temp_width = _window_width;
+		static int temp_height = _window_height;
 
 		ImGui::SliderInt("Width", &temp_width, 640, SCREEN_WIDTH);
 		ImGui::SliderInt("Height", &temp_height, 480, SCREEN_HEIGHT);
 
-		if (!resizable)
+		if (!is_resizable)
 			ImGui::EndDisabled();
 
 		if (ImGui::Button("Apply"))
 		{
-			if ((temp_width != window_width || temp_height != window_height) && resizable)
+			if ((temp_width != _window_width || temp_height != _window_height) && is_resizable)
 			{
-				window_width = temp_width;
-				window_height = temp_height;
+				_window_width = temp_width;
+				_window_height = temp_height;
 
-				SDL_SetWindowSize(App->GetWindow()->window, window_width, window_height);
+				SDL_SetWindowSize(App->GetWindow()->window, _window_width, _window_height);
 				SDL_Delay(1000);
-				App->GetOpenGL()->WindowResized(window_width, window_height);
-				App->GetModuleCamera()->SetAspectRatio(static_cast<float>(window_width) / window_height);
+				App->GetOpenGL()->WindowResized(_window_width, _window_height);
+				App->GetModuleCamera()->SetAspectRatio(static_cast<float>(_window_width) / _window_height);
 				App->GetModuleCamera()->CalcProjMatrix();
 			}
 		}
@@ -142,9 +142,9 @@ void ModuleOpenGL::DrawWindowOptions()
 			temp_height = SCREEN_HEIGHT;
 		}
 
-		if (ImGui::Checkbox("Fullscreen", &fullscreen))
+		if (ImGui::Checkbox("Fullscreen", &is_fullscreen))
 		{
-			if (fullscreen)
+			if (is_fullscreen)
 				SDL_SetWindowFullscreen(App->GetWindow()->window, SDL_WINDOW_FULLSCREEN);
 			else
 				SDL_SetWindowFullscreen(App->GetWindow()->window, 0);
@@ -152,18 +152,18 @@ void ModuleOpenGL::DrawWindowOptions()
 
 		ImGui::SameLine();
 
-		if (ImGui::Checkbox("Resizable", &resizable))
-			SDL_SetWindowResizable(App->GetWindow()->window, (SDL_bool)resizable);
+		if (ImGui::Checkbox("Resizable", &is_resizable))
+			SDL_SetWindowResizable(App->GetWindow()->window, (SDL_bool)is_resizable);
 
-		if (ImGui::Checkbox("Borderless", &borderless))
-			SDL_SetWindowBordered(App->GetWindow()->window, (SDL_bool)!borderless);
+		if (ImGui::Checkbox("Borderless", &is_borderless))
+			SDL_SetWindowBordered(App->GetWindow()->window, (SDL_bool)!is_borderless);
 
 
 		ImGui::SameLine();
 
-		if (ImGui::Checkbox("Full Desktop", &full_desktop))
+		if (ImGui::Checkbox("Full Desktop", &is_full_desktop))
 		{
-			if (full_desktop)
+			if (is_full_desktop)
 				SDL_SetWindowFullscreen(App->GetWindow()->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 			else
 				SDL_SetWindowFullscreen(App->GetWindow()->window, 0);
