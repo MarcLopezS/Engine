@@ -55,10 +55,7 @@ update_status ModuleEditor::Update()
 
 		App->ShowPerformanceInfo();
 
-		if (ImGui::CollapsingHeader("Window"))
-		{
-			DrawWindowOptions();
-		}
+		App->GetOpenGL()->DrawWindowOptions();
 		
 		App->ShowHardwareInfo();
 
@@ -170,73 +167,4 @@ void ModuleEditor::DrawMenu()
 
 		ImGui::EndMainMenuBar(); 
 	}
-}
-
-void ModuleEditor::DrawWindowOptions()
-{
-	if (ImGui::SliderFloat("Brightness", &brightness, 0.0f, 1.0f))
-		SDL_SetWindowBrightness(App->GetWindow()->window, brightness);
-
-	if (!resizable)
-		ImGui::BeginDisabled();
-
-	static int temp_width = window_width;
-	static int temp_height = window_height;
-
-	ImGui::SliderInt("Width", &temp_width, 640, SCREEN_WIDTH);
-	ImGui::SliderInt("Height", &temp_height, 480, SCREEN_HEIGHT);
-
-	if (!resizable)
-		ImGui::EndDisabled();
-
-	if (ImGui::Button("Apply"))
-	{
-		if ((temp_width != window_width || temp_height != window_height) && resizable)
-		{
-			window_width = temp_width;
-			window_height = temp_height;
-
-			SDL_SetWindowSize(App->GetWindow()->window, window_width, window_height);
-			SDL_Delay(1000);
-			App->GetOpenGL()->WindowResized(window_width, window_height);
-			App->GetModuleCamera()->SetAspectRatio(static_cast<float>(window_width) / window_height);
-			App->GetModuleCamera()->CalcProjMatrix();
-		}
-	}
-
-	ImGui::SameLine();
-
-	if (ImGui::Button("Reset"))
-	{
-		temp_width = SCREEN_WIDTH;
-		temp_height = SCREEN_HEIGHT;
-	}
-
-	if (ImGui::Checkbox("Fullscreen", &fullscreen))
-	{
-		if (fullscreen)
-			SDL_SetWindowFullscreen(App->GetWindow()->window, SDL_WINDOW_FULLSCREEN);
-		else
-			SDL_SetWindowFullscreen(App->GetWindow()->window, 0);
-	}
-
-	ImGui::SameLine();
-
-	if (ImGui::Checkbox("Resizable", &resizable))
-		SDL_SetWindowResizable(App->GetWindow()->window, (SDL_bool)resizable);
-
-	if (ImGui::Checkbox("Borderless", &borderless))
-		SDL_SetWindowBordered(App->GetWindow()->window, (SDL_bool)!borderless);
-
-
-	ImGui::SameLine();
-
-	if (ImGui::Checkbox("Full Desktop", &full_desktop))
-	{
-		if (full_desktop)
-			SDL_SetWindowFullscreen(App->GetWindow()->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-		else
-			SDL_SetWindowFullscreen(App->GetWindow()->window, 0);
-	}
-
 }
