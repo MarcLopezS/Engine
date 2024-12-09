@@ -25,7 +25,10 @@ public:
 	ImGuiIO* io;
 
 private:
+	void ShowAbout();
+
 	bool show_config_window;
+	bool show_about_window;
 		
 	std::vector<std::string> logs;
 	bool show_log_window = true;

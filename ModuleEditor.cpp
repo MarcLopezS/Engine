@@ -6,11 +6,13 @@
 #include "SDL.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "glew-2.1.0\include\GL\glew.h"
 #include <algorithm>
 
 ModuleEditor::ModuleEditor() 
 {
 	show_config_window = false;
+	show_about_window = false;
 	io = nullptr;
 }
 
@@ -62,6 +64,9 @@ update_status ModuleEditor::Update()
 		ImGui::End();
 	}
 
+	if (show_about_window)
+		ShowAbout();
+
 	// Rendering
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -112,6 +117,7 @@ void ModuleEditor::RenderLogWindow()
 	ImGui::End();
 }
 
+//TODO:Check definitive menu options
 void ModuleEditor::DrawMenu()
 {
 	if (ImGui::BeginMainMenuBar())
@@ -160,11 +166,41 @@ void ModuleEditor::DrawMenu()
 			}
 			if (ImGui::MenuItem("About"))
 			{
-				LOG("Showing Software details");
+				LOG("Showing About details");
+				show_about_window = !show_about_window;
 			}
 			ImGui::EndMenu(); 
 		}
 
 		ImGui::EndMainMenuBar(); 
 	}
+}
+
+void ModuleEditor::ShowAbout()
+{
+	ImGui::Begin("About", &show_about_window);
+
+	ImGui::Text("Engine Name: %s", TITLE);
+	ImGui::Text("Description: %s", "example text"); //TODO
+	ImGui::Text("Author: %s", AUTHOR);
+
+	ImGui::Separator();
+	//TODO:Show libraries with versions used
+	ImGui::Text("Libraries used:");
+	ImGui::BulletText("ImGui Version: %s", IMGUI_VERSION);
+	ImGui::BulletText("MathGeoLib Version: "); //TODO
+
+	ImGui::BulletText("SDL Version: %d.%d.%d", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
+
+	ImGui::BulletText("OpenGL Version: %s", (const char*)glGetString(GL_VERSION));
+	ImGui::BulletText("GLEW Version: %s", (const char*)glewGetString(GLEW_VERSION));
+
+	//TODO:include library used for textures
+	ImGui::Separator();
+
+	//TODO:License
+	ImGui::Text("License: %s", LICENSE);
+
+	ImGui::End();
+
 }

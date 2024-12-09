@@ -34,6 +34,8 @@ enum update_status
 #define FULLSCREEN false
 #define VSYNC true
 #define TITLE "Super Awesome Engine"
+#define AUTHOR "Marc Lopez Serrano"
+#define LICENSE "Apache-2.0 license"
 
 //version of GLSL
 #define GLSL_VERSION "#version 460"

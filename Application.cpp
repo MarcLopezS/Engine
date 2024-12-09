@@ -109,8 +109,8 @@ void Application::ShowHardwareInfo()
 		ImGui::Text("SDL Version: %d.%d.%d", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
 
 		ImGui::Separator();
+		
 		//CPU & RAM
-
 		int cpuCount = SDL_GetCPUCount();
 		int cacheLineSize = SDL_GetCPUCacheLineSize();
 		ImGui::Text("CPUs: %d (Cache Line Size: %db)", cpuCount, cacheLineSize);
@@ -179,17 +179,17 @@ void Application::UpdatePerformanceLogs()
 
 void Application::DrawPerformanceGraphs()
 {
+	char title[25];
+
 	if (!fps_log.empty())
 	{
-		char fps_title[25];
-		sprintf_s(fps_title, 25, "Framerate %.1f", fps_log.back());
-		ImGui::PlotHistogram("##framerate", &fps_log[0], fps_log.size(), 0, fps_title, 0.0f, 100.0f, ImVec2(310, 100));
+		sprintf_s(title, 25, "Framerate %.1f", fps_log.back());
+		ImGui::PlotHistogram("##framerate", &fps_log[0], fps_log.size(), 0, title, 0.0f, 100.0f, ImVec2(310, 100));
 	}
 
 	if (!ms_log.empty())
 	{
-		char ms_title[25];
-		sprintf_s(ms_title, 25, "Milliseconds %.1f", ms_log.back());
-		ImGui::PlotHistogram("##milliseconds", &ms_log[0], ms_log.size(), 0, ms_title, 0.0f, 40.0f, ImVec2(310, 100));
+		sprintf_s(title, 25, "Milliseconds %.1f", ms_log.back());
+		ImGui::PlotHistogram("##milliseconds", &ms_log[0], ms_log.size(), 0, title, 0.0f, 40.0f, ImVec2(310, 100));
 	}
 }
