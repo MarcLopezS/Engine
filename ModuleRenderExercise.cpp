@@ -69,7 +69,7 @@ bool ModuleRenderExercise::Init()
 
 update_status ModuleRenderExercise::Update()
 {
-	float4x4 model = float4x4::FromTRS(float3(0.0f, 1.0f, -1.0f), float4x4::RotateZ(static_cast<float>(M_PI) / 4.0f), float3(1.0f, 1.0f, 1.0f));
+	float4x4 model = float4x4::FromTRS(float3(0.0f, 1.0f, -1.0f), float4x4::RotateZ(0), float3(1.0f, 1.0f, 1.0f));
 	_view = App->GetModuleCamera()->GetViewMatrix();
 	_proj = App->GetModuleCamera()->GetProjMatrix();
 
@@ -78,7 +78,10 @@ update_status ModuleRenderExercise::Update()
 	App->GetModuleDebugDraw()->Draw(_view, _proj, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	glUseProgram(_id_program); // Restore triangle shader
+
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
@@ -94,7 +97,7 @@ update_status ModuleRenderExercise::Update()
 	glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &_view[0][0]);
 	glUniformMatrix4fv(projLoc, 1, GL_TRUE, &_proj[0][0]);
 	
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	return UPDATE_CONTINUE;
 }
@@ -118,12 +121,22 @@ void ModuleRenderExercise::CreateTriangleVBO()
 	float vertex_data[] = {
 		-1.0f, -1.0f,  0.0f,
 		 1.0f, -1.0f,  0.0f,
-		 0.0f,  1.0f,  0.0f
+		 1.0f,  1.0f,  0.0f,
+		-1.0f,  1.0f,  0.0f
+	};
+
+	unsigned int indices[] = {
+		0, 1, 2, 
+		2, 3, 0   
 	};
 
 	glGenBuffers(1, &_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 	glBufferData(GL_ARRAY_BUFFER,sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &_ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 }
 
@@ -131,4 +144,6 @@ void ModuleRenderExercise::CreateTriangleVBO()
 void ModuleRenderExercise::DestroyVBO()
 {
 	glDeleteBuffers(1, &_vbo);
+	glDeleteBuffers(1, &_ebo);
+
 }

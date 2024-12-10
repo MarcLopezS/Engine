@@ -35,6 +35,7 @@ private:
     ModuleProgram* _program = nullptr;
     unsigned int _id_program;
     unsigned int _vbo;
+    unsigned int _ebo;
     float4x4 _view;
     float4x4 _proj;
     std::string _vertexShader;
