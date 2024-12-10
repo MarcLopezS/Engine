@@ -7,13 +7,14 @@
 #include "ModuleCamera.h"
 #include "ModuleDebugDraw.h"
 #include "ModuleEditor.h"
+#include "ModuleTexture.h"
 #include "imgui.h"
 #include "glew-2.1.0\include\GL\glew.h"
 
 
 using namespace std;
 
-Application::Application()
+Application::Application() : _deltaTime(0.0f), _lastFrameTime(SDL_GetTicks())
 {
 	// Order matters: they will Init/start/update in this order
 	modules.push_back(_window = new ModuleWindow());
@@ -23,9 +24,7 @@ Application::Application()
 	modules.push_back(_editor = new ModuleEditor());
 	modules.push_back(_input = new ModuleInput());
 	modules.push_back(_camera = new ModuleCamera());
-
-	_deltaTime = 0.0f;
-	_lastFrameTime = SDL_GetTicks();
+	modules.push_back(_texture = new ModuleTexture);
 
 	_fps_log.reserve(_max_log_size);
 	_ms_log.reserve(_max_log_size);

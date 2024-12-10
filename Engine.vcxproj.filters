@@ -131,6 +131,7 @@
       <Filter>External\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ModuleEditor.cpp" />
+    <ClCompile Include="ModuleTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -360,6 +361,7 @@
       <Filter>External\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="ModuleEditor.h" />
+    <ClInclude Include="ModuleTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="External\MathGeoLib\include\Geometry\KDTree.inl">
@@ -421,5 +423,13 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{c39d2081-c411-4ffe-b913-61bd17e73a5f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{7d99dfec-3e67-46f3-b1f2-926db9b5e89a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Test-image-Baboon.jpeg">
+      <Filter>Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>

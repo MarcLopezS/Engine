@@ -9,6 +9,7 @@
 
 
 class ModuleProgram;
+class Moduletexture;
 
 class ModuleRenderExercise :
     public Module
@@ -22,7 +23,7 @@ public:
     update_status PostUpdate();
     bool CleanUp();
 
-    void CreateTriangleVBO();
+    void CreateQuadVBO();
     void DestroyVBO();
 
     ModuleProgram* GetProgram() { return _program; }
@@ -33,11 +34,14 @@ public:
 private:
     SDL_Renderer* _renderer = nullptr;
     ModuleProgram* _program = nullptr;
+    
     unsigned int _id_program;
     unsigned int _vbo;
     unsigned int _ebo;
+   
     float4x4 _view;
     float4x4 _proj;
+    
     std::string _vertexShader;
     std::string _fragmentShader;
 

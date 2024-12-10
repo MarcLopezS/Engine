@@ -3,6 +3,7 @@
 #include "ModuleWindow.h"
 #include "ModuleDebugDraw.h"
 #include "ModuleCamera.h"
+#include "ModuleTexture.h"
 #include "Application.h"
 #include <fstream> 
 #include <sstream>
@@ -14,16 +15,17 @@
 #include "Geometry/Ray.h"
 #include "Geometry/Frustum.h"
 
+
 ModuleRenderExercise::ModuleRenderExercise()
 {
 	_vertexShader = "../Vertex_Shader.glsl";
 	_fragmentShader = "../Fragment_Shader.glsl";
-
 	_program = new ModuleProgram(_vertexShader, _fragmentShader);
 }
 
 ModuleRenderExercise::~ModuleRenderExercise()
 {
+	delete _program;
 }
 
 bool ModuleRenderExercise::Init()
@@ -45,7 +47,13 @@ bool ModuleRenderExercise::Init()
 		ret = false;
 	}
 
-	CreateTriangleVBO();
+	CreateQuadVBO();
+
+	
+	if (!App->GetModuleTexture()->LoadTexture("../Resources/Test-image-Baboon.jpeg")) {
+		LOG("Error: Could not load texture");
+		return false;
+	}
 	
 	LOG("Reading Shaders");
 	std::string vertexShaderContent = _program->readShaderSource(_vertexShader);
@@ -77,13 +85,17 @@ update_status ModuleRenderExercise::Update()
 
 	App->GetModuleDebugDraw()->Draw(_view, _proj, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
-	glUseProgram(_id_program); // Restore triangle shader
+	glUseProgram(_id_program); // Restore Quad shader
 
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	App->GetModuleTexture()->Bind(0);
 
 	GLint modelLoc = glGetUniformLocation(_id_program, "model");
 	GLint viewLoc = glGetUniformLocation(_id_program, "view");
@@ -116,13 +128,14 @@ bool ModuleRenderExercise::CleanUp()
 
 
 //Function called one time at creation of vertex buffer
-void ModuleRenderExercise::CreateTriangleVBO()
+void ModuleRenderExercise::CreateQuadVBO()
 {
 	float vertex_data[] = {
-		-1.0f, -1.0f,  0.0f,
-		 1.0f, -1.0f,  0.0f,
-		 1.0f,  1.0f,  0.0f,
-		-1.0f,  1.0f,  0.0f
+		//position			 //UV
+		-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f,  1.0f, 1.0f,
+		-1.0f,  1.0f, 0.0f,  0.0f, 1.0f
 	};
 
 	unsigned int indices[] = {
