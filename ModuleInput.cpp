@@ -8,7 +8,7 @@
 
 #define MAX_KEYS 300
 
-ModuleInput::ModuleInput()
+ModuleInput::ModuleInput() : _mouse_wheel(0)
 {
 	_keyState = new KeyState[MAX_KEYS];
 	memset(_keyState, KEY_IDLE, sizeof(KeyState) * MAX_KEYS);
@@ -43,6 +43,7 @@ update_status ModuleInput::PreUpdate()
 {
 	SDL_Event sdlEvent;
 
+	_mouse_wheel = 0;
 	_mouse_motion = { 0, 0 };
 
 	while (SDL_PollEvent(&sdlEvent) != 0)
@@ -72,9 +73,10 @@ update_status ModuleInput::PreUpdate()
 			_mouse.x = sdlEvent.motion.x / SCREEN_SIZE;
 			_mouse.y = sdlEvent.motion.y / SCREEN_SIZE;
 			break;
+		case SDL_MOUSEWHEEL:
+			_mouse_wheel = sdlEvent.wheel.y;
+			break;
 		}
-
-
 	}
 
 	_keyboard = SDL_GetKeyboardState(NULL);
@@ -106,15 +108,12 @@ update_status ModuleInput::PreUpdate()
 			_mouse_buttons[i] = KEY_IDLE;
 	}
 
-
-
     return UPDATE_CONTINUE;
 }
 
 // Called every draw update
 update_status ModuleInput::Update()
 {
-
     return UPDATE_CONTINUE;
 }
 
@@ -124,14 +123,4 @@ bool ModuleInput::CleanUp()
 	LOG("Quitting SDL input event subsystem");
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	return true;
-}
-
-const Point& ModuleInput::GetMousePosition() const
-{
-	return _mouse;
-}
-
-const Point& ModuleInput::GetMouseMotion() const
-{
-	return _mouse_motion;
 }

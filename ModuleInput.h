@@ -55,8 +55,9 @@ public:
     KeyState GetMouseButtonDown(int id) const { return _mouse_buttons[id - 1]; }
 
     // Get mouse / axis position
-    const Point& GetMouseMotion() const;
-    const Point& GetMousePosition() const;
+    const Point& GetMouseMotion() const { return _mouse_motion; }
+    const Point& GetMousePosition() const { return _mouse; }
+    int GetMouseWheel() const { return _mouse_wheel; }
 
 private:
 	const Uint8 *_keyboard = NULL;
@@ -64,5 +65,6 @@ private:
     KeyState	_mouse_buttons[NUM_MOUSE_BUTTONS];
     Point _mouse_motion;
     Point _mouse;
+    int _mouse_wheel;
 
 };

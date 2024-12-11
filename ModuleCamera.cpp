@@ -40,7 +40,7 @@ update_status ModuleCamera::Update()
 	_deltaTime = App->GetDeltaTime();
 	_cameraSpeed = 4.0f;
 	_rotationSpeed = 60.0f;		
-	_sensitivity = 10.0f;
+	_sensitivity = 1.0f;
 
 
 	//detect if shift key is pressed, then multiply speed movement
@@ -106,6 +106,7 @@ void ModuleCamera::MovMouseController()
 		return;
 
 	Point mouseDelta = App->GetModuleInput()->GetMouseMotion();
+	int mouse_wheel = App->GetModuleInput()->GetMouseWheel();
 
 	//TODO:Check unstable movement.
 	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT ||
@@ -115,9 +116,15 @@ void ModuleCamera::MovMouseController()
 		_frustum.pos += _frustum.up * mouseDelta.y * _sensitivity * _deltaTime;
 	}
 
+	if (mouse_wheel > 0)
+		_frustum.pos += _frustum.front * _sensitivity;
+
+	else if(mouse_wheel < 0)
+		_frustum.pos -= _frustum.front * _sensitivity;
 
 	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KEY_REPEAT)
 	{
+		//TODO:Check unstable movement.
 		if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT) //Zoom in/out
 		{
 			float zoomFactor = 0.0f;
