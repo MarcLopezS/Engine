@@ -21,13 +21,10 @@ public:
     void SetFilters(GLint magFilter, GLint minFilter);
     void SetWrapMode(GLint wrapS, GLint wrapT);
 
-    int GetWidth() const { return _width; }
-    int GetHeight() const { return _height; }
     GLenum GetFormat() const { return _format; }
 
 private:
     GLuint _textureID;
-    int _width, _height;
     GLenum _format;
 };
 
