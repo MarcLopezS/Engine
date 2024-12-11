@@ -40,7 +40,7 @@ update_status ModuleCamera::Update()
 	_deltaTime = App->GetDeltaTime();
 	_cameraSpeed = 4.0f;
 	_rotationSpeed = 60.0f;		
-	_sensitivity = 20.0f;
+	_sensitivity = 1.0f;
 
 
 	//detect if shift key is pressed, then multiply speed movement
@@ -48,7 +48,7 @@ update_status ModuleCamera::Update()
 		App->GetModuleInput()->GetKey(SDL_SCANCODE_RSHIFT) == KEY_REPEAT) {
 
 		_cameraSpeed *= 3.0f;
-		_rotationSpeed *= 3.0f;
+		//_rotationSpeed *= 3.0f;
 		_sensitivity *= 2.0f;
 	}
 
@@ -128,23 +128,27 @@ void ModuleCamera::MovMouseController()
 	{
 		if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT) //zoom
 		{
-			_sensitivity = 80.0f;
 			float zoomFactor = 0.0f;
-			if (mouseDelta.y > 0 || mouseDelta.x < 0) zoomFactor = -_sensitivity * _deltaTime;
-			else if (mouseDelta.y < 0 || mouseDelta.x > 0) zoomFactor = _sensitivity * _deltaTime;
+			if (mouseDelta.y > 0 || mouseDelta.x < 0) zoomFactor = -_sensitivity;
+			else if (mouseDelta.y < 0 || mouseDelta.x > 0) zoomFactor = _sensitivity;
 
 			_frustum.pos += _frustum.front * zoomFactor;
 		}
 		else //rotation
 		{
-			const float threshold = 0.1f; 
-			float deltaX = (fabs(mouseDelta.x) > threshold) ? mouseDelta.x : 0.0f;
-			float deltaY = (fabs(mouseDelta.y) > threshold) ? mouseDelta.y : 0.0f;
+			float rotationSensitivity = 0.1f;
+			float threshold = 0.1f;
 
-			float sensitivityFactor = 10.0f; 
+			float deltaX = (float)mouseDelta.x * rotationSensitivity * _sensitivity;
+			float deltaY = (float)mouseDelta.y * rotationSensitivity * _sensitivity;
 
-			_yaw += deltaX * sensitivityFactor * _rotationSpeed * _deltaTime;;
-			_pitch -= deltaY * sensitivityFactor * _rotationSpeed * _deltaTime;
+			if (fabs(deltaY) < threshold) 
+				deltaY = 0.0f;
+			if (fabs(deltaX) < threshold)
+				deltaX = 0.0f;
+
+			_yaw += deltaX;
+			_pitch -= deltaY;
 
 		}
 	}

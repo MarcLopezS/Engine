@@ -43,7 +43,7 @@ bool ModuleTexture::LoadTexture(const std::string& filePath)
     else if (SUCCEEDED(DirectX::LoadFromWICFile(wFilePath.c_str(), DirectX::WIC_FLAGS_NONE, nullptr, image))) {
         LOG("Loaded texture as WIC: %s", filePath.c_str());
     }
-    else if (FAILED(hr)) {
+    else {
         LOG("Failure in loading texture")
         return false; 
     }    
