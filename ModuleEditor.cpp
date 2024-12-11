@@ -2,6 +2,7 @@
 #include "ModuleWindow.h"
 #include "ModuleOpenGL.h"
 #include "ModuleCamera.h"
+#include "ModuleTexture.h"
 #include "Application.h"
 #include "SDL.h"
 #include "backends/imgui_impl_sdl2.h"
@@ -9,11 +10,8 @@
 #include "glew-2.1.0\include\GL\glew.h"
 #include <algorithm>
 
-ModuleEditor::ModuleEditor() 
+ModuleEditor::ModuleEditor() : is_config_window(false), is_about_window(false), is_log_window(false), is_texture_window(false)
 {
-	is_config_window = false;
-	is_about_window = false;
-	is_log_window = false;
 	io = nullptr;
 }
 
@@ -50,6 +48,9 @@ update_status ModuleEditor::Update()
 
 	if (is_log_window)
 		RenderLogWindow();
+
+	if (is_texture_window)
+		App->GetModuleTexture()->ShowTextureMenu();
 
 	if (is_config_window)
 	{
@@ -143,9 +144,13 @@ void ModuleEditor::DrawMenu()
 
 		if (ImGui::BeginMenu("View"))
 		{
-			if (ImGui::MenuItem("Show Console"))
+			if (ImGui::MenuItem("Console"))
 			{
 				is_log_window = !is_log_window;
+			}
+			if (ImGui::MenuItem("Texture Menu"))
+			{
+				is_texture_window = !is_texture_window;
 			}
 			ImGui::EndMenu(); 
 		}

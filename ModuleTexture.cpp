@@ -1,4 +1,5 @@
 #include "ModuleTexture.h"
+#include "imgui.h"
 #include <iostream>
 
 ModuleTexture::ModuleTexture() : _textureID(0), _format(GL_RGBA8) 
@@ -8,7 +9,6 @@ ModuleTexture::ModuleTexture() : _textureID(0), _format(GL_RGBA8)
 
 ModuleTexture::~ModuleTexture() 
 {
-    glDeleteTextures(1, &_textureID);
 }
 
 bool ModuleTexture::Init()
@@ -24,6 +24,7 @@ update_status ModuleTexture::Update()
 
 bool ModuleTexture::CleanUp()
 {
+    glDeleteTextures(1, &_textureID);
     return true;
 }
 
@@ -32,9 +33,8 @@ bool ModuleTexture::LoadTexture(const std::string& filePath)
     DirectX::ScratchImage image;
     std::wstring wFilePath = std::wstring(filePath.begin(), filePath.end());
 
-    HRESULT hr = DirectX::LoadFromDDSFile(wFilePath.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image);
 
-    if (SUCCEEDED(hr)) {
+    if (SUCCEEDED(DirectX::LoadFromDDSFile(wFilePath.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image))) {
         LOG("Loaded texture as DDS: %s", filePath.c_str());
     }
     else if (SUCCEEDED(DirectX::LoadFromTGAFile(wFilePath.c_str(), nullptr, image))) {
@@ -51,8 +51,7 @@ bool ModuleTexture::LoadTexture(const std::string& filePath)
     //If image does not contain mipmap, it is generated
     if (image.GetMetadata().mipLevels <= 1) {
         DirectX::ScratchImage mipImage;
-        hr = DirectX::GenerateMipMaps(*image.GetImage(0, 0, 0), DirectX::TEX_FILTER_DEFAULT, 0, mipImage);
-        if (FAILED(hr)) {
+        if (FAILED(DirectX::GenerateMipMaps(*image.GetImage(0, 0, 0), DirectX::TEX_FILTER_DEFAULT, 0, mipImage))) {
             LOG("Failed to generate mipmaps: %s", filePath);
             return false;
         }
@@ -92,6 +91,11 @@ bool ModuleTexture::LoadTexture(const std::string& filePath)
     for (size_t i = 0; i < metadata.mipLevels; ++i)
     {
         const DirectX::Image* mip = image.GetImage(i, 0, 0);
+        if (i == 0)
+        {
+            _width = mip->width;
+            _height = mip->height;
+        }
         glTexImage2D(GL_TEXTURE_2D, i, internalFormat, mip->width, mip->height, 0, format, type, mip->pixels);
     }
 
@@ -99,12 +103,13 @@ bool ModuleTexture::LoadTexture(const std::string& filePath)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, metadata.mipLevels - 1);
 
+    _format = internalFormat;
+
     return true;
 }
 
 void ModuleTexture::Bind(GLuint unit) const 
 {
-    LOG("Binding Texture...");
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, _textureID);
 }
@@ -123,4 +128,44 @@ void ModuleTexture::SetWrapMode(GLint wrapS, GLint wrapT)
     glBindTexture(GL_TEXTURE_2D, _textureID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+}
+
+void ModuleTexture::ShowTextureMenu() {
+    ImGui::Begin("Texture Options");
+
+    ImGui::Text("Width: %d", _width);
+    ImGui::Text("Height: %d", _height);
+    ImGui::Text("Format: 0x%X", _format);
+
+    if (ImGui::CollapsingHeader("Wrap Mode")) {
+        ImGui::Combo("Wrap S", &_textureOptions.currentWrapModeS, _textureOptions.wrapModeNames, IM_ARRAYSIZE(_textureOptions.wrapModeNames));
+        ImGui::Combo("Wrap T", &_textureOptions.currentWrapModeT, _textureOptions.wrapModeNames, IM_ARRAYSIZE(_textureOptions.wrapModeNames));
+
+        if (ImGui::Button("Apply Wrap Mode")) {
+            SetWrapMode(_textureOptions.wrapModes[_textureOptions.currentWrapModeS], _textureOptions.wrapModes[_textureOptions.currentWrapModeT]);
+        }
+    }
+
+    if (ImGui::CollapsingHeader("Filter Mode")) {
+        ImGui::Combo("Mag Filter", &_textureOptions.currentMagFilter, _textureOptions.filterModeNames, IM_ARRAYSIZE(_textureOptions.filterModeNames));
+        ImGui::Combo("Min Filter", &_textureOptions.currentMinFilter, _textureOptions.filterModeNames, IM_ARRAYSIZE(_textureOptions.filterModeNames));
+
+        if (ImGui::Button("Apply Filter Mode")) {
+            SetFilters(GL_LINEAR, _textureOptions.filterModes[_textureOptions.currentMinFilter]);
+        }
+    }
+
+    if (ImGui::CollapsingHeader("Mipmaps")) {
+        ImGui::Checkbox("Use Mipmaps", &_textureOptions.useMipmaps);
+
+        if (ImGui::Button("Apply Mipmap Setting")) {
+            if (_textureOptions.useMipmaps) {
+                glBindTexture(GL_TEXTURE_2D, _textureID);
+                glGenerateMipmap(GL_TEXTURE_2D);
+                LOG("Generated MipMap");
+            }
+        }
+    }
+
+    ImGui::End();
 }

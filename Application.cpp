@@ -24,7 +24,7 @@ Application::Application() : _deltaTime(0.0f), _lastFrameTime(SDL_GetTicks())
 	modules.push_back(_editor = new ModuleEditor());
 	modules.push_back(_input = new ModuleInput());
 	modules.push_back(_camera = new ModuleCamera());
-	modules.push_back(_texture = new ModuleTexture);
+	modules.push_back(_texture = new ModuleTexture());
 
 	_fps_log.reserve(_max_log_size);
 	_ms_log.reserve(_max_log_size);

@@ -33,6 +33,7 @@ private:
 		
 	std::vector<std::string> _logs;
 	bool is_log_window;
+	bool is_texture_window;
 
 };
 

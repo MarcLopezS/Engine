@@ -73,7 +73,7 @@ bool ModuleRenderExercise::Init()
 		LOG("Shader linking error: %s", strInfoLog);
 	}
 
-	App->GetModuleTexture()->SetFilters(GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	App->GetModuleTexture()->SetFilters(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 	App->GetModuleTexture()->SetWrapMode(GL_REPEAT, GL_REPEAT);
 
 	glEnable(GL_DEPTH_TEST);
