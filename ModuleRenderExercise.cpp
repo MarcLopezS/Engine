@@ -49,12 +49,15 @@ bool ModuleRenderExercise::Init()
 
 	CreateQuadVBO();
 
-	
+
 	if (!App->GetModuleTexture()->LoadTexture("../Resources/Test-image-Baboon.jpeg")) {
 		LOG("Error: Could not load texture");
 		return false;
 	}
-	
+	else {
+		LOG("Texture Loaded Successfully");
+	}
+
 	LOG("Reading Shaders");
 	std::string vertexShaderContent = _program->readShaderSource(_vertexShader);
 	std::string fragmentShaderContent = _program->readShaderSource(_fragmentShader);
@@ -62,13 +65,17 @@ bool ModuleRenderExercise::Init()
 
 	GLint status;
 	glGetProgramiv(_id_program, GL_LINK_STATUS, &status);
-	
+
 	if (status == GL_FALSE)
 	{
 		GLchar strInfoLog[1024] = { 0 };
 		glGetProgramInfoLog(_id_program, sizeof(strInfoLog) - 1, nullptr, strInfoLog);
 		LOG("Shader linking error: %s", strInfoLog);
 	}
+
+	App->GetModuleTexture()->SetFilters(GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	App->GetModuleTexture()->SetWrapMode(GL_REPEAT, GL_REPEAT);
+
 	glEnable(GL_DEPTH_TEST);
 
 	return ret;
@@ -84,7 +91,7 @@ update_status ModuleRenderExercise::Update()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	App->GetModuleDebugDraw()->Draw(_view, _proj, SCREEN_WIDTH, SCREEN_HEIGHT);
-	
+
 	glUseProgram(_id_program); // Restore Quad shader
 
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
@@ -100,15 +107,17 @@ update_status ModuleRenderExercise::Update()
 	GLint modelLoc = glGetUniformLocation(_id_program, "model");
 	GLint viewLoc = glGetUniformLocation(_id_program, "view");
 	GLint projLoc = glGetUniformLocation(_id_program, "proj");
+	GLint textureLoc = glGetUniformLocation(_id_program, "mytexture");
 
-	if (modelLoc == -1 || viewLoc == -1 || projLoc == -1) {
+	if (modelLoc == -1 || viewLoc == -1 || projLoc == -1 || textureLoc == -1) {
 		LOG("Error: Uniforms shaders location not found.");
 	}
 
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &model[0][0]);
 	glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &_view[0][0]);
 	glUniformMatrix4fv(projLoc, 1, GL_TRUE, &_proj[0][0]);
-	
+	glUniform1i(textureLoc, 0);
+
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	return UPDATE_CONTINUE;
@@ -132,20 +141,20 @@ void ModuleRenderExercise::CreateQuadVBO()
 {
 	float vertex_data[] = {
 		//position			 //UV
-		-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
-		 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
-		 1.0f,  1.0f, 0.0f,  1.0f, 1.0f,
-		-1.0f,  1.0f, 0.0f,  0.0f, 1.0f
+		-1.0f, -1.0f, 0.0f,  0.0f, 1.0f,
+		 1.0f, -1.0f, 0.0f,  1.0f, 1.0f,
+		 1.0f,  1.0f, 0.0f,  1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f,  0.0f, 0.0f
 	};
 
 	unsigned int indices[] = {
-		0, 1, 2, 
-		2, 3, 0   
+		0, 1, 2,
+		2, 3, 0
 	};
 
 	glGenBuffers(1, &_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-	glBufferData(GL_ARRAY_BUFFER,sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &_ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
@@ -158,5 +167,4 @@ void ModuleRenderExercise::DestroyVBO()
 {
 	glDeleteBuffers(1, &_vbo);
 	glDeleteBuffers(1, &_ebo);
-
 }
