@@ -17,6 +17,7 @@ public:
     update_status Update();
     bool CleanUp();
 
+    void RecalculateCameraAxes();
     void LookAt(const float3& eye, const float3& target, const float3& up);
     void CalcProjMatrix();
 

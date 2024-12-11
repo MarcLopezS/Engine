@@ -40,7 +40,7 @@ update_status ModuleCamera::Update()
 	_deltaTime = App->GetDeltaTime();
 	_cameraSpeed = 4.0f;
 	_rotationSpeed = 60.0f;		
-	_sensitivity = 1.0f;
+	_sensitivity = 10.0f;
 
 
 	//detect if shift key is pressed, then multiply speed movement
@@ -48,7 +48,6 @@ update_status ModuleCamera::Update()
 		App->GetModuleInput()->GetKey(SDL_SCANCODE_RSHIFT) == KEY_REPEAT) {
 
 		_cameraSpeed *= 3.0f;
-		//_rotationSpeed *= 3.0f;
 		_sensitivity *= 2.0f;
 	}
 
@@ -56,15 +55,7 @@ update_status ModuleCamera::Update()
 	MovKeyboardController();
 	MovMouseController();
 	
-	_pitch = max(-89.0f, min(89.0f, _pitch));
-
-	float3 newForward;
-	newForward.x = cosf(DEG_TO_RAD(_yaw)) * cosf(DEG_TO_RAD(_pitch));
-	newForward.y = sinf(DEG_TO_RAD(_pitch));
-	newForward.z = sinf(DEG_TO_RAD(_yaw)) * cosf(DEG_TO_RAD(_pitch));
-
-	_frustum.front = newForward.Normalized();
-	_frustum.up = _frustum.WorldRight().Cross(_frustum.front).Normalized();
+	RecalculateCameraAxes();
 	
 	LookAt(_frustum.pos, _frustum.pos + _frustum.front, _frustum.up);
 	
@@ -116,46 +107,59 @@ void ModuleCamera::MovMouseController()
 
 	Point mouseDelta = App->GetModuleInput()->GetMouseMotion();
 
+	//TODO:Check unstable movement.
 	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT ||
 		App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_MIDDLE) == KEY_REPEAT) 
 	{
-		_frustum.pos += _frustum.WorldRight() * -mouseDelta.x * _sensitivity * _deltaTime;
+		_frustum.pos += _frustum.WorldRight() * (-mouseDelta.x) * _sensitivity * _deltaTime;
 		_frustum.pos += _frustum.up * mouseDelta.y * _sensitivity * _deltaTime;
 	}
 
 
 	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KEY_REPEAT)
 	{
-		if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT) //zoom
+		if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT) //Zoom in/out
 		{
 			float zoomFactor = 0.0f;
-			if (mouseDelta.y > 0 || mouseDelta.x < 0) zoomFactor = -_sensitivity;
-			else if (mouseDelta.y < 0 || mouseDelta.x > 0) zoomFactor = _sensitivity;
+			_sensitivity = 0.2f;
+			
+			if (mouseDelta.y > 0 || mouseDelta.x < 0) 
+				zoomFactor = -_sensitivity;
+
+			else if (mouseDelta.y < 0 || mouseDelta.x > 0)
+				zoomFactor = _sensitivity;
 
 			_frustum.pos += _frustum.front * zoomFactor;
 		}
-		else //rotation
+		else //Rotation
 		{
-			float rotationSensitivity = 0.1f;
+			float rotationSensitivity = 0.5f;
 			float threshold = 0.1f;
 
-			float deltaX = (float)mouseDelta.x * rotationSensitivity * _sensitivity;
-			float deltaY = (float)mouseDelta.y * rotationSensitivity * _sensitivity;
+			_yaw += (float)mouseDelta.x * rotationSensitivity;
+			_pitch -= (float)mouseDelta.y * rotationSensitivity;
 
-			if (fabs(deltaY) < threshold) 
-				deltaY = 0.0f;
-			if (fabs(deltaX) < threshold)
-				deltaX = 0.0f;
-
-			_yaw += deltaX;
-			_pitch -= deltaY;
+			_pitch = max(-89.0f, min(89.0f, _pitch));
 
 		}
 	}
-
-
 }
 
+void ModuleCamera::RecalculateCameraAxes()
+{
+	float3 newForward;
+	newForward.x = cosf(DEG_TO_RAD(_yaw)) * cosf(DEG_TO_RAD(_pitch));
+	newForward.y = sinf(DEG_TO_RAD(_pitch));
+	newForward.z = sinf(DEG_TO_RAD(_yaw)) * cosf(DEG_TO_RAD(_pitch));
+
+	_frustum.front = newForward.Normalized();
+
+	float3 worldUp = float3(0.0f, 1.0f, 0.0f);
+	float3 right = worldUp.Cross(_frustum.front).Normalized();
+	float3 up = _frustum.front.Cross(right).Normalized();
+
+	_frustum.up = up;
+}
 
 void ModuleCamera::LookAt(const float3& eye, const float3& target, const float3& up)
 {
