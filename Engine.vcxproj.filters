@@ -132,6 +132,8 @@
     </ClCompile>
     <ClCompile Include="ModuleEditor.cpp" />
     <ClCompile Include="ModuleTexture.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -362,6 +364,11 @@
     </ClInclude>
     <ClInclude Include="ModuleEditor.h" />
     <ClInclude Include="ModuleTexture.h" />
+    <ClInclude Include="External\GLTF\tiny_gltf.h">
+      <Filter>External\GLTF</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="External\MathGeoLib\include\Geometry\KDTree.inl">
@@ -425,6 +432,9 @@
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{7d99dfec-3e67-46f3-b1f2-926db9b5e89a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\GLTF">
+      <UniqueIdentifier>{9692364e-3a25-4c4b-8aef-25e72aaa7325}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
