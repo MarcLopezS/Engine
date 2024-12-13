@@ -16,9 +16,10 @@ enum main_states
 	MAIN_EXIT
 };
 
-//Use NVIDIA Graphics card instead of default one
+//Use NVIDIA/AMD Graphics card instead of default one
 extern "C" {
-	__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+	_declspec(dllexport) DWORD NvOptimusEnablement = 1;
+	_declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1; 
 }
 
 Application* App = NULL;
