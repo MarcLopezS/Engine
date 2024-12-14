@@ -1,6 +1,8 @@
 #include "Model.h"
 #include "Globals.h"
 #include "Mesh.h"
+#include "Application.h"
+#include "ModuleTexture.h"
 
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #define TINYGLTF_NO_STB_IMAGE
@@ -49,13 +51,48 @@ bool Model::LoadModel(const std::string& fileName)
         }
     }
 
+    LoadMaterials(model);
+
     return true;
 }
 
-void Model::Draw() const
+void Model::LoadMaterials(const tinygltf::Model& srcModel)
 {
-    for (auto& mesh : _mesh_list) {
-        mesh->Draw();
+    LOG("Loading Materials...")
+    for (const auto& srcMaterial : srcModel.materials)
+    {
+        unsigned int textureId = 0;
+
+        if (srcMaterial.pbrMetallicRoughness.baseColorTexture.index >= 0)
+        {
+            const tinygltf::Texture& texture = srcModel.textures[srcMaterial.pbrMetallicRoughness.baseColorTexture.index];
+            const tinygltf::Image& image = srcModel.images[texture.source];
+
+            if (!App->GetModuleTexture()->LoadTexture(image.uri)) 
+            {
+                LOG("Error: Could not the texture be loaded.");
+            }
+            else 
+            {
+                LOG("Texture loaded successfully");
+
+            }
+
+            textureId = App->GetModuleTexture()->GetTextureID();
+
+            if(textureId == 0)
+                LOG("Warning: Failed to load texture for material.");
+            
+        }
+
+        _textures.push_back(textureId);
+    }
+}
+
+void Model::Draw(unsigned int program) const
+{
+    for (size_t i = 0; i < _mesh_list.size(); ++i) {
+        _mesh_list[i]->Draw(program, _textures, i);
     }
 }
 

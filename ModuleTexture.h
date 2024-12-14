@@ -30,7 +30,7 @@ public:
     update_status Update() override;
     bool CleanUp() override;
 
-    bool LoadTexture(const std::string& filePath);
+    bool LoadTexture(const std::string& fileName);
     void Bind(GLuint unit = 0) const;
     void SetFilters(GLint magFilter, GLint minFilter);
     void SetWrapMode(GLint wrapS, GLint wrapT);
@@ -40,6 +40,7 @@ public:
     GLenum GetFormat() const { return _format; }
     int GetWidth() const { return _width; }
     int GetHeight() const { return _height; }
+    GLuint GetTextureID() const { return _textureID; }
 
 private:
     GLuint _textureID;

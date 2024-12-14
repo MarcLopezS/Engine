@@ -28,20 +28,22 @@ bool ModuleTexture::CleanUp()
     return true;
 }
 
-bool ModuleTexture::LoadTexture(const std::string& filePath) 
+bool ModuleTexture::LoadTexture(const std::string& fileName) 
 {
     DirectX::ScratchImage image;
+    std::string filePath = MATERIAL_PATH + fileName;
+
     std::wstring wFilePath = std::wstring(filePath.begin(), filePath.end());
 
 
     if (SUCCEEDED(DirectX::LoadFromDDSFile(wFilePath.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image))) {
-        LOG("Loaded texture as DDS: %s", filePath.c_str());
+        LOG("Loaded texture as DDS: %s", fileName.c_str());
     }
     else if (SUCCEEDED(DirectX::LoadFromTGAFile(wFilePath.c_str(), nullptr, image))) {
-        LOG("Loaded texture as TGA: %s", filePath.c_str());
+        LOG("Loaded texture as TGA: %s", fileName.c_str());
     }
     else if (SUCCEEDED(DirectX::LoadFromWICFile(wFilePath.c_str(), DirectX::WIC_FLAGS_NONE, nullptr, image))) {
-        LOG("Loaded texture as WIC: %s", filePath.c_str());
+        LOG("Loaded texture as WIC: %s", fileName.c_str());
     }
     else {
         LOG("Failure in loading texture")
@@ -102,6 +104,9 @@ bool ModuleTexture::LoadTexture(const std::string& filePath)
     //Configuring mipmap levels
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, metadata.mipLevels - 1);
+
+    SetFilters(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	SetWrapMode(GL_REPEAT, GL_REPEAT);
 
     _format = internalFormat;
 

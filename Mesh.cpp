@@ -1,13 +1,14 @@
 #include "Mesh.h"
 #include "Globals.h"
 #include "Math/float3.h"
+#include "Math/float2.h"
 #include "tiny_gltf.h"
 #include "SDL.h"
 #include "glew-2.1.0/include/GL/glew.h"
 
 
 
-Mesh::Mesh() : _vbo(0), _ebo(0), _vao(0), _indexCount(0)
+Mesh::Mesh() : _vbo(0),_vbo_UV(0), _ebo(0), _vao(0), _indexCount(0)
 {
 }
 
@@ -17,54 +18,103 @@ Mesh::~Mesh()
 
 bool Mesh::LoadMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const tinygltf::Primitive& primitive)
 {
-    LOG("Loading Mesh...")
-    const auto& itPos = primitive.attributes.find("POSITION");
-    
-    if (itPos != primitive.attributes.end()) 
+    LOG("Loading Mesh...");
+
+    if (!LoadAttribute(model, primitive, "POSITION", _vbo, sizeof(float3)))
     {
-        const tinygltf::Accessor& posAcc = model.accessors[itPos->second];
-        SDL_assert(posAcc.type == TINYGLTF_TYPE_VEC3);
-        SDL_assert(posAcc.componentType == GL_FLOAT);
+        LOG("Error: Failed to load POSITION attribute");
+        return false;
+    }
 
-        const tinygltf::BufferView& posView = model.bufferViews[posAcc.bufferView];
-        const tinygltf::Buffer& posBuffer = model.buffers[posView.buffer];
-        const unsigned char* bufferPos = &(posBuffer.data[posAcc.byteOffset + posView.byteOffset]);
+    if (!LoadAttribute(model, primitive, "TEXCOORD_0", _vbo_UV, sizeof(float2)))
+    {
+        LOG("Error: Failed to load TEXCOORD_0 attribute");
+        return false;
+    }
 
-        size_t stride = posView.byteStride == 0 ? 3 * sizeof(float) : posView.byteStride;
-        LOG("Stride: %zu", stride);
+    if (!LoadEBO(model, primitive))
+    {
+        LOG("Error: Failed to load EBO");
+        return false;
+    }
 
-        // Create VBO
-        glGenBuffers(1, &_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * posAcc.count, nullptr, GL_STATIC_DRAW);
-        
-        //Buffer Mapping
+    CreateVAO();
+
+    return true;
+}
+
+bool Mesh::LoadAttribute(const tinygltf::Model& model, const tinygltf::Primitive& primitive,
+    const std::string& attributeName, GLuint& vbo, size_t elementSize)
+{
+    const auto& itAttr = primitive.attributes.find(attributeName);
+    if (itAttr == primitive.attributes.end())
+    {
+        LOG("Error: %s attribute not found", attributeName.c_str());
+        return false;
+    }
+
+    const tinygltf::Accessor& accessor = model.accessors[itAttr->second];
+
+    if (elementSize == sizeof(float3))
+    {
+        SDL_assert(accessor.type == TINYGLTF_TYPE_VEC3);
+    }
+    else if (elementSize == sizeof(float2))
+    {
+        SDL_assert(accessor.type == TINYGLTF_TYPE_VEC2);
+    }
+
+    SDL_assert(accessor.componentType == GL_FLOAT);
+
+    const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
+    const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
+    const unsigned char* bufferData = &(buffer.data[accessor.byteOffset + bufferView.byteOffset]);
+
+    //Readjust Stride
+    size_t stride = bufferView.byteStride == 0 ? elementSize : bufferView.byteStride;
+    LOG("%s Stride: %zu", attributeName.c_str(), stride);
+
+    // Create VBO
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, elementSize * accessor.count, nullptr, GL_STATIC_DRAW);
+
+    //Buffer Mapping
+    if (elementSize == sizeof(float3))
+    {
         float3* ptr = reinterpret_cast<float3*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
-
         if (ptr)
         {
-            for (size_t i = 0; i < posAcc.count; ++i)
+            for (size_t i = 0; i < accessor.count; ++i)
             {
-                ptr[i] = *reinterpret_cast<const float3*>(bufferPos);
-                bufferPos += stride;
+                ptr[i] = *reinterpret_cast<const float3*>(bufferData);
+                bufferData += stride;
             }
             glUnmapBuffer(GL_ARRAY_BUFFER);
         }
-        else {
-            LOG("Error: Failed to map buffer");
+        else
+        {
+            LOG("Error: Failed to map buffer for %s", attributeName.c_str());
             return false;
         }
-
-        if (!LoadEBO(model, primitive)) {
-            LOG("Error: Failed to load EBO");
-            return false;
-        }
-
-        CreateVAO();
     }
-    else {
-        LOG("Error: POSITION attribute not found");
-        return false;
+    else if (elementSize == sizeof(float2))
+    {
+        float2* ptr = reinterpret_cast<float2*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+        if (ptr)
+        {
+            for (size_t i = 0; i < accessor.count; ++i)
+            {
+                ptr[i] = *reinterpret_cast<const float2*>(bufferData);
+                bufferData += stride;
+            }
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+        }
+        else
+        {
+            LOG("Error: Failed to map buffer for %s", attributeName.c_str());
+            return false;
+        }
     }
 
     return true;
@@ -132,23 +182,35 @@ void Mesh::CreateVAO()
     glBindVertexArray(_vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
-
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-    //glEnableVertexAttribArray(1);
-    //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(sizeof(float) * 3));
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo_UV);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
 
     glBindVertexArray(0);
 }
 
-void Mesh::Draw() const
+void Mesh::Draw(unsigned int program, const std::vector<unsigned int>& textures, unsigned int materialIndex)
 {
+    glUseProgram(program);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textures[materialIndex]);
+
+    GLint textureLoc = glGetUniformLocation(program, "mytexture");
+
+    if (textureLoc == -1)
+        LOG("Error: Uniform 'mytexture' not found in shader program");
+
+
+    glUniform1i(textureLoc, 0);
+
     glBindVertexArray(_vao);
-    
     glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, nullptr);
-    
     glBindVertexArray(0);
 }
 
@@ -156,10 +218,12 @@ void Mesh::Destroy()
 {
     glDeleteVertexArrays(1, &_vao);
     glDeleteBuffers(1, &_vbo);
+    glDeleteBuffers(1, &_vbo_UV);
     glDeleteBuffers(1, &_ebo);
 
     _vao = 0;
     _vbo = 0;
+    _vbo_UV = 0;
     _ebo = 0;
 }
 

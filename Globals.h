@@ -36,6 +36,7 @@ enum update_status
 #define TITLE "Super Awesome Engine"
 #define AUTHOR "Marc Lopez Serrano"
 #define LICENSE "Apache-2.0 license"
+#define MATERIAL_PATH "../Resources/Models/"
 
 //version of GLSL
 #define GLSL_VERSION "#version 460"
