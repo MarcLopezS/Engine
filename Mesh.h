@@ -16,7 +16,7 @@ public:
     bool LoadMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, const tinygltf::Primitive& primitive);
     bool LoadEBO(const tinygltf::Model& model, const tinygltf::Primitive& primitive);
     void CreateVAO();
-    void Draw(unsigned int program, const std::vector<unsigned int>& textures, unsigned int materialIndex);
+    void Draw(unsigned int program, const std::vector<unsigned int>& textures);
 
     void Destroy();
 
@@ -25,5 +25,6 @@ private:
 
     unsigned int _vbo,_vbo_UV,_ebo, _vao;
     size_t _indexCount;
+    unsigned int _materialIndex;
 };
 

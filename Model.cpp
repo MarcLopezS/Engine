@@ -92,7 +92,7 @@ void Model::LoadMaterials(const tinygltf::Model& srcModel)
 void Model::Draw(unsigned int program) const
 {
     for (size_t i = 0; i < _mesh_list.size(); ++i) {
-        _mesh_list[i]->Draw(program, _textures, i);
+        _mesh_list[i]->Draw(program, _textures);
     }
 }
 

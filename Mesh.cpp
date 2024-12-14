@@ -20,6 +20,8 @@ bool Mesh::LoadMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, co
 {
     LOG("Loading Mesh...");
 
+    _materialIndex = primitive.material;
+
     if (!LoadAttribute(model, primitive, "POSITION", _vbo, sizeof(float3)))
     {
         LOG("Error: Failed to load POSITION attribute");
@@ -194,12 +196,12 @@ void Mesh::CreateVAO()
     glBindVertexArray(0);
 }
 
-void Mesh::Draw(unsigned int program, const std::vector<unsigned int>& textures, unsigned int materialIndex)
+void Mesh::Draw(unsigned int program, const std::vector<unsigned int>& textures)
 {
     glUseProgram(program);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textures[materialIndex]);
+    glBindTexture(GL_TEXTURE_2D, textures[_materialIndex]);
 
     GLint textureLoc = glGetUniformLocation(program, "mytexture");
 

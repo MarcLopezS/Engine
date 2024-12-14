@@ -56,7 +56,7 @@ bool ModuleRenderExercise::Init()
 	_model = new Model();
 	
 	LOG("Created Model instance")
-	if (!_model->LoadModel("../Resources/Models/BoxTextured.gltf")) {
+	if (!_model->LoadModel("../Resources/Models/BakerHouse.gltf")) {
 		LOG("Error: Could not load the model.");
 		ret = false;
 	}
