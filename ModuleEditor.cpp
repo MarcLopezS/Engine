@@ -30,6 +30,9 @@ bool ModuleEditor::Init()
 	ImGui_ImplSDL2_InitForOpenGL(App->GetWindow()->window, App->GetRender()->GetContext());
 	ImGui_ImplOpenGL3_Init(GLSL_VERSION);
 
+	is_initialized = true;
+	FlushPendingLogs();
+
 	return true;
 }
 
@@ -95,10 +98,31 @@ bool ModuleEditor::CleanUp()
 
 void ModuleEditor::AddLog(const char* log)
 {
-	_logs.push_back(log); 
-	if (_logs.size() > 1000) 
+	if (!is_initialized) 
 	{
-		_logs.erase(_logs.begin()); 
+		_pendingLogs.push(log);
+	}
+	else
+	{
+		_logs.push_back(log);
+		if (_logs.size() > 1000)
+		{
+			_logs.erase(_logs.begin());
+		}
+	}
+	
+}
+
+void ModuleEditor::FlushPendingLogs()
+{
+	while (!_pendingLogs.empty()) 
+	{
+		_logs.push_back(_pendingLogs.front());
+		_pendingLogs.pop();
+
+		if (_logs.size() > 1000) {
+			_logs.erase(_logs.begin());
+		}
 	}
 }
 

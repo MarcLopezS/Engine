@@ -10,6 +10,7 @@
 
 class ModuleProgram;
 class Moduletexture;
+class Model;
 
 class ModuleRenderExercise :
     public Module
@@ -34,6 +35,7 @@ public:
 private:
     SDL_Renderer* _renderer = nullptr;
     ModuleProgram* _program = nullptr;
+    Model* _model = nullptr;
     
     unsigned int _id_program;
     unsigned int _vbo;

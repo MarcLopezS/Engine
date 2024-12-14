@@ -15,10 +15,12 @@ Model::Model()
 
 Model::~Model()
 {
+    Destroy();
 }
 
 bool Model::LoadModel(const std::string& fileName) 
 {
+    LOG("Loading Model...");
     tinygltf::TinyGLTF gltfContext;
     tinygltf::Model model;
     std::string error, warning;
@@ -36,7 +38,14 @@ bool Model::LoadModel(const std::string& fileName)
     for (const auto& srcMesh : model.meshes) {
         for (const auto& primitive : srcMesh.primitives) {
             Mesh* mesh = new Mesh;
-            mesh->LoadMesh(model, srcMesh, primitive);
+            if (mesh->LoadMesh(model, srcMesh, primitive))
+            {
+                _mesh_list.push_back(mesh);
+            }
+            else {
+                LOG("Error: Failed to load mesh.");
+                delete mesh;
+            }
         }
     }
 
@@ -45,11 +54,16 @@ bool Model::LoadModel(const std::string& fileName)
 
 void Model::Draw() const
 {
-    //TODO: Pending on implementing Mesh class
+    for (auto& mesh : _mesh_list) {
+        mesh->Draw();
+    }
 }
 
 void Model::Destroy()
 {
-    //TODO: Pending on implementing Mesh class
+    for (auto& mesh : _mesh_list) {
+        mesh->Destroy();
+    }
+    _mesh_list.clear();
 }
 

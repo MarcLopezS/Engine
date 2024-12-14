@@ -5,6 +5,7 @@
 #include "ModuleCamera.h"
 #include "ModuleTexture.h"
 #include "Application.h"
+#include "Model.h"
 #include <fstream> 
 #include <sstream>
 #include <iostream>
@@ -25,6 +26,11 @@ ModuleRenderExercise::ModuleRenderExercise()
 
 ModuleRenderExercise::~ModuleRenderExercise()
 {
+	if (_model) {
+		delete _model;
+		_model = nullptr;
+	}
+
 	delete _program;
 }
 
@@ -47,16 +53,24 @@ bool ModuleRenderExercise::Init()
 		ret = false;
 	}
 
-	CreateQuadVBO();
+	_model = new Model();
+	
+	LOG("Created Model instance")
+	if (!_model->LoadModel("../Resources/Models/Box.gltf")) {
+		LOG("Error: Could not load the model.");
+		ret = false;
+	}
+
+	//CreateQuadVBO();
 
 
-	if (!App->GetModuleTexture()->LoadTexture("../Resources/Test-image-Baboon.jpeg")) {
+	/*if (!App->GetModuleTexture()->LoadTexture("../Resources/Test-image-Baboon.jpeg")) {
 		LOG("Error: Could not load texture");
 		return false;
 	}
 	else {
 		LOG("Texture Loaded Successfully");
-	}
+	}*/
 
 	LOG("Reading Shaders");
 	std::string vertexShaderContent = _program->readShaderSource(_vertexShader);
@@ -73,8 +87,8 @@ bool ModuleRenderExercise::Init()
 		LOG("Shader linking error: %s", strInfoLog);
 	}
 
-	App->GetModuleTexture()->SetFilters(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-	App->GetModuleTexture()->SetWrapMode(GL_REPEAT, GL_REPEAT);
+	/*App->GetModuleTexture()->SetFilters(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	App->GetModuleTexture()->SetWrapMode(GL_REPEAT, GL_REPEAT);*/
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -84,6 +98,8 @@ bool ModuleRenderExercise::Init()
 
 update_status ModuleRenderExercise::Update()
 {
+
+	//get model, view and projection matrix
 	float4x4 model = float4x4::FromTRS(float3(0.0f, 1.0f, -1.0f), float4x4::RotateZ(0), float3(1.0f, 1.0f, 1.0f));
 	_view = App->GetModuleCamera()->GetViewMatrix();
 	_proj = App->GetModuleCamera()->GetProjMatrix();
@@ -92,33 +108,34 @@ update_status ModuleRenderExercise::Update()
 
 	App->GetModuleDebugDraw()->Draw(_view, _proj, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	glUseProgram(_id_program); // Restore Quad shader
+	glUseProgram(_id_program); // Restore shader
 
-	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+	/*glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(1);*/
 
-	App->GetModuleTexture()->Bind(0);
+	//App->GetModuleTexture()->Bind(0);
 
 	GLint modelLoc = glGetUniformLocation(_id_program, "model");
 	GLint viewLoc = glGetUniformLocation(_id_program, "view");
 	GLint projLoc = glGetUniformLocation(_id_program, "proj");
-	GLint textureLoc = glGetUniformLocation(_id_program, "mytexture");
+	//GLint textureLoc = glGetUniformLocation(_id_program, "mytexture");
 
-	if (modelLoc == -1 || viewLoc == -1 || projLoc == -1 || textureLoc == -1) {
+	if (modelLoc == -1 || viewLoc == -1 || projLoc == -1 /*|| textureLoc == -1*/) {
 		LOG("Error: Uniforms shaders location not found.");
 	}
 
 	glUniformMatrix4fv(modelLoc, 1, GL_TRUE, &model[0][0]);
 	glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &_view[0][0]);
 	glUniformMatrix4fv(projLoc, 1, GL_TRUE, &_proj[0][0]);
-	glUniform1i(textureLoc, 0);
+	//glUniform1i(textureLoc, 0);
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+	_model->Draw();
 
 	return UPDATE_CONTINUE;
 }
