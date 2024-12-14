@@ -24,8 +24,9 @@ public:
     update_status PostUpdate();
     bool CleanUp();
 
-    void CreateQuadVBO();
-    void DestroyVBO();
+    void DestroyModel();
+
+    void LoadNewModel(const std::string& fileName);
 
     ModuleProgram* GetProgram() { return _program; }
     float4x4 GetViewMatrix() const { return _view; }
@@ -38,8 +39,6 @@ private:
     Model* _model = nullptr;
     
     unsigned int _id_program;
-    unsigned int _vbo;
-    unsigned int _ebo;
    
     float4x4 _view;
     float4x4 _proj;

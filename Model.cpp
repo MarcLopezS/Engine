@@ -53,6 +53,7 @@ bool Model::LoadModel(const std::string& fileName)
 
     LoadMaterials(model);
 
+    LOG("Model Loaded Successfully");
     return true;
 }
 
@@ -87,6 +88,8 @@ void Model::LoadMaterials(const tinygltf::Model& srcModel)
 
         _textures.push_back(textureId);
     }
+
+    LOG("Loaded Material Successfully")
 }
 
 void Model::Draw(unsigned int program) const

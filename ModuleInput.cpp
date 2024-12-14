@@ -3,6 +3,7 @@
 #include "ModuleInput.h"
 #include "ModuleOpenGL.h"
 #include "ModuleEditor.h"
+#include "ModuleRenderExercise.h"
 #include "SDL/include/SDL.h"
 #include "backends/imgui_impl_sdl2.h"
 
@@ -76,6 +77,17 @@ update_status ModuleInput::PreUpdate()
 		case SDL_MOUSEWHEEL:
 			_mouse_wheel = sdlEvent.wheel.y;
 			break;
+		case SDL_DROPFILE:
+		{
+			char* droppedFile = sdlEvent.drop.file;
+
+			LOG("File dropped: %s", droppedFile);
+
+			App->GetModuleRenderExcercise()->LoadNewModel(droppedFile);
+
+			SDL_free(droppedFile);
+			break;
+		}
 		}
 	}
 

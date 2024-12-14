@@ -26,11 +26,6 @@ ModuleRenderExercise::ModuleRenderExercise()
 
 ModuleRenderExercise::~ModuleRenderExercise()
 {
-	if (_model) {
-		delete _model;
-		_model = nullptr;
-	}
-
 	delete _program;
 }
 
@@ -53,24 +48,16 @@ bool ModuleRenderExercise::Init()
 		ret = false;
 	}
 
+	//Create Model
 	_model = new Model();
 	
-	LOG("Created Model instance")
+	LOG("Created Initial Model Instance -------------------")
 	if (!_model->LoadModel("../Resources/Models/BakerHouse.gltf")) {
 		LOG("Error: Could not load the model.");
 		ret = false;
 	}
-
-	//CreateQuadVBO();
-
-
-	/*if (!App->GetModuleTexture()->LoadTexture("../Resources/Test-image-Baboon.jpeg")) {
-		LOG("Error: Could not load texture");
-		return false;
-	}
-	else {
-		LOG("Texture Loaded Successfully");
-	}*/
+	else
+		LOG("End Created Initial Model Instance -------------------")
 
 	LOG("Reading Shaders");
 	std::string vertexShaderContent = _program->readShaderSource(_vertexShader);
@@ -107,7 +94,7 @@ update_status ModuleRenderExercise::Update()
 
 	App->GetModuleDebugDraw()->Draw(_view, _proj, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	glUseProgram(_id_program); // Restore shader
+	glUseProgram(_id_program); // To avoid overlap with DebugDraw
 
 	GLint modelLoc = glGetUniformLocation(_id_program, "model");
 	GLint viewLoc = glGetUniformLocation(_id_program, "view");
@@ -121,7 +108,6 @@ update_status ModuleRenderExercise::Update()
 	glUniformMatrix4fv(viewLoc, 1, GL_TRUE, &_view[0][0]);
 	glUniformMatrix4fv(projLoc, 1, GL_TRUE, &_proj[0][0]);
 
-	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	_model->Draw(_id_program);
 
 	return UPDATE_CONTINUE;
@@ -134,41 +120,36 @@ update_status ModuleRenderExercise::PostUpdate()
 
 bool ModuleRenderExercise::CleanUp()
 {
-	LOG("Destroying VBO");
-	DestroyVBO();
+	DestroyModel();
 	return true;
 }
 
-
-//Function called one time at creation of vertex buffer
-void ModuleRenderExercise::CreateQuadVBO()
+void ModuleRenderExercise::LoadNewModel(const std::string& fileName)
 {
-	float vertex_data[] = {
-		//position			 //UV
-		-1.0f, -1.0f, 0.0f,  0.0f, 1.0f,
-		 1.0f, -1.0f, 0.0f,  1.0f, 1.0f,
-		 1.0f,  1.0f, 0.0f,  1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,  0.0f, 0.0f
-	};
+	LOG("Loading new model process -------------------");
+	
+	DestroyModel();
 
-	unsigned int indices[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
+	_model = new Model();
+	if (!_model->LoadModel(fileName))
+	{
+		LOG("Error: Failed to load model: %s", fileName.c_str());
+		delete _model;
+		_model = nullptr;
+	}
+	else
+	{
+		LOG("New model loaded successfully: %s", fileName.c_str());
+	}
 
-	glGenBuffers(1, &_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &_ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
+	LOG("End of Loading new model process -------------------");
 }
 
-//function called one time at destruction of vertex buffer
-void ModuleRenderExercise::DestroyVBO()
+void ModuleRenderExercise::DestroyModel()
 {
-	glDeleteBuffers(1, &_vbo);
-	glDeleteBuffers(1, &_ebo);
+	LOG("Destroying actual model ...")
+	if (_model) {
+		delete _model;
+		_model = nullptr;
+	}
 }

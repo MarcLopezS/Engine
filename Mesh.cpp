@@ -42,12 +42,15 @@ bool Mesh::LoadMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, co
 
     CreateVAO();
 
+    LOG("Mesh Loaded Successfully");
+
     return true;
 }
 
 bool Mesh::LoadAttribute(const tinygltf::Model& model, const tinygltf::Primitive& primitive,
     const std::string& attributeName, GLuint& vbo, size_t elementSize)
 {
+    LOG("Loading %s attribute ...", attributeName.c_str());
     const auto& itAttr = primitive.attributes.find(attributeName);
     if (itAttr == primitive.attributes.end())
     {
@@ -74,7 +77,6 @@ bool Mesh::LoadAttribute(const tinygltf::Model& model, const tinygltf::Primitive
 
     //Readjust Stride
     size_t stride = bufferView.byteStride == 0 ? elementSize : bufferView.byteStride;
-    LOG("%s Stride: %zu", attributeName.c_str(), stride);
 
     // Create VBO
     glGenBuffers(1, &vbo);
@@ -119,11 +121,14 @@ bool Mesh::LoadAttribute(const tinygltf::Model& model, const tinygltf::Primitive
         }
     }
 
+    LOG("Loaded %s attribute Successfully", attributeName.c_str());
+
     return true;
 }
 
 bool Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Primitive& primitive) 
 {
+    LOG("Loading EBO ...");
     if (primitive.indices >= 0) 
     {
         const tinygltf::Accessor& indAcc = model.accessors[primitive.indices];
@@ -148,7 +153,6 @@ bool Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Primitive& prim
         auto copyIndices = [&](auto bufferInd) 
             {
                 for (size_t i = 0; i < indAcc.count; ++i) {
-                    LOG("Index %zu: %u", i, reinterpret_cast<const uint16_t*>(buffer)[i]);
                     ptr[i] = bufferInd[i];
                 }   
             };
@@ -174,12 +178,14 @@ bool Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Primitive& prim
         _indexCount = indAcc.count;
         
     }
-
+    LOG("End of Loading EBO");
     return true;
 }
 
 void Mesh::CreateVAO()
 {
+    LOG("Creating VAO ...");
+
     glGenVertexArrays(1, &_vao);
     glBindVertexArray(_vao);
 
@@ -194,6 +200,8 @@ void Mesh::CreateVAO()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
 
     glBindVertexArray(0);
+
+    LOG("End of Creating VAO");
 }
 
 void Mesh::Draw(unsigned int program, const std::vector<unsigned int>& textures)
