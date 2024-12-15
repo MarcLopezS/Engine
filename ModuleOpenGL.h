@@ -21,6 +21,7 @@ public:
 	void WindowResized(unsigned width, unsigned height);
 
 	void DrawWindowOptions();
+	void DrawOpenGLInfo();
 
 private:
 

@@ -184,4 +184,59 @@ void ModuleOpenGL::DrawWindowOptions()
 	}
 }
 
+void ModuleOpenGL::DrawOpenGLInfo()
+{
+	if (ImGui::CollapsingHeader("OpenGL"))
+	{
+		ImGui::Text("Vendor: %s", glGetString(GL_VENDOR));
+		ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));
+		ImGui::Text("Version: %s", glGetString(GL_VERSION));
+		ImGui::Text("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+		ImGui::Separator();
+		
+		int major, minor, profile;
+		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
+		SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor);
+		SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &profile);
+
+		ImGui::Text("Context Version: %d.%d", major, minor);
+
+		const char* profileStr = "Unknown";
+		if (profile == SDL_GL_CONTEXT_PROFILE_CORE)
+			profileStr = "Core";
+		else if (profile == SDL_GL_CONTEXT_PROFILE_COMPATIBILITY)
+			profileStr = "Compatibility";
+		else if (profile == SDL_GL_CONTEXT_PROFILE_ES)
+			profileStr = "ES";
+
+		ImGui::Text("Context Profile: %s", profileStr);
+
+		ImGui::Separator();
+
+		int depthSize, stencilSize;
+		SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &depthSize);
+		SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &stencilSize);
+
+		ImGui::Text("Depth Buffer Size: %d bits", depthSize);
+		ImGui::Text("Stencil Buffer Size: %d bits", stencilSize);
+
+		ImGui::Separator();
+
+		ImGui::Text("Depth Test: %s", glIsEnabled(GL_DEPTH_TEST) ? "Enabled" : "Disabled");
+		ImGui::Text("Blending: %s", glIsEnabled(GL_BLEND) ? "Enabled" : "Disabled");
+		ImGui::Text("Cull Face: %s", glIsEnabled(GL_CULL_FACE) ? "Enabled" : "Disabled");
+
+		ImGui::Text("V-Sync: %s", SDL_GL_GetSwapInterval() == 0 ? "Disabled" : "Enabled");
+
+		ImGui::Separator();
+
+		ImGui::Text("Current Viewport:");
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		ImGui::Text("X: %d, Y: %d, Width: %d, Height: %d", viewport[0], viewport[1], viewport[2], viewport[3]);
+
+	}
+}
+
 

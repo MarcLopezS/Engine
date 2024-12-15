@@ -89,6 +89,8 @@ update_status ModuleEditor::Update()
 		ShowSoftware();
 		App->GetModuleInput()->DrawInputUIWindow();
 
+		//Show ModuleOpenGL
+		App->GetOpenGL()->DrawOpenGLInfo();
 		ImGui::End();
 	}
 	
