@@ -20,6 +20,7 @@ public:
     void RecalculateCameraAxes();
     void LookAt(const float3& eye, const float3& target, const float3& up);
     void CalcProjMatrix();
+    void FocusCamera();
 
     void SetFOV(); //Set horizontal FOV, keeping aspect ratio
     void SetAspectRatio(float newAspectRatio) { _aspectRatio = newAspectRatio;  }
@@ -56,7 +57,8 @@ private:
     float _rotationSpeed;
     float _sensitivity;
 
-    bool _ignoreInput;
+    //Used to ignore global input
+    bool _ignoreInput; 
 
 };
 

@@ -3,6 +3,7 @@
 #include "ModuleInput.h"
 #include "ModuleOpenGL.h"
 #include "ModuleEditor.h"
+#include "ModuleCamera.h"
 #include "ModuleRenderExercise.h"
 #include "SDL/include/SDL.h"
 #include "backends/imgui_impl_sdl2.h"
@@ -84,8 +85,8 @@ update_status ModuleInput::PreUpdate()
 			LOG("File dropped: %s", droppedFile);
 
 			App->GetModuleRenderExcercise()->LoadNewModel(droppedFile);
-
 			SDL_free(droppedFile);
+			App->GetModuleCamera()->FocusCamera();
 			break;
 		}
 		}

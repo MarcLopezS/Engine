@@ -18,7 +18,7 @@ ModuleCamera::ModuleCamera()
 	_pitch = 0.0f;
 	_aspectRatio = 16.0f / 9.0f;
 	_nearPlane = 0.1f;
-	_farPlane = 100.0f;
+	_farPlane = 1000.0f;
 	_ignoreInput = false;
 
 }
@@ -58,10 +58,12 @@ update_status ModuleCamera::Update()
 	MovKeyboardController();
 	MovMouseController();
 	
-	RecalculateCameraAxes();
-	
 	if (!_ignoreInput)
+	{
+		RecalculateCameraAxes();
 		LookAt(_frustum.pos, _frustum.pos + _frustum.front, _frustum.up);
+	}
+
 	
 	return UPDATE_CONTINUE;
 }
@@ -78,6 +80,8 @@ void ModuleCamera::MovKeyboardController()
 	if (ImGui::GetIO().WantCaptureKeyboard)
 		return;
 	
+	_ignoreInput = false;
+
 	//Movement
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
 		_frustum.pos += _frustum.front * _cameraSpeed * _deltaTime;
@@ -102,24 +106,15 @@ void ModuleCamera::MovKeyboardController()
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
 		_yaw -= _rotationSpeed * _deltaTime;
 
-	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_F) == KEY_REPEAT)
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_F) == KEY_DOWN)
 	{
-		float3 modelCenter = App->GetModuleRenderExcercise()->GetModel()->GetModelCenter();
-		float modelDiagonal = App->GetModuleRenderExcercise()->GetModel()->GetDiagonalModel();
-		float distanceFactor = 2.0f;
-
-		float3 objectPosition = modelCenter + (App->GetModuleRenderExcercise()->GetObjectPosition());
-
-		_frustum.pos = objectPosition - _frustum.front * modelDiagonal * distanceFactor;
-
-		RecalculateCameraAxes();
-
-		LookAt(_frustum.pos, objectPosition, _frustum.up);
+		FocusCamera();
 
 		_ignoreInput = true;
 	}
-	else {
-		_ignoreInput = false;
+
+	else if(App->GetModuleInput()->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT){
+		_ignoreInput = true;
 	}
 
 }
@@ -134,8 +129,8 @@ void ModuleCamera::MovMouseController()
 	int mouse_wheel = App->GetModuleInput()->GetMouseWheel();
 
 	//TODO:Check unstable movement.
-	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT ||
-		App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_MIDDLE) == KEY_REPEAT) 
+	if (!_ignoreInput && (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT ||
+		App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_MIDDLE) == KEY_REPEAT)) 
 	{
 		_frustum.pos += _frustum.WorldRight() * (-mouseDelta.x) * _sensitivity * _deltaTime;
 		_frustum.pos += _frustum.up * mouseDelta.y * _sensitivity * _deltaTime;
@@ -147,33 +142,24 @@ void ModuleCamera::MovMouseController()
 	else if(mouse_wheel < 0)
 		_frustum.pos -= _frustum.front * _sensitivity;
 
-	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KEY_REPEAT)
+	if (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KEY_REPEAT
+		|| (_ignoreInput && App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_LEFT)))
 	{
-		//TODO:Check unstable movement.
-		if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT) //Zoom in/out
-		{
-			float zoomFactor = 0.0f;
-			_sensitivity = 0.2f;
-			
-			if (mouseDelta.y > 0 || mouseDelta.x < 0) 
-				zoomFactor = -_sensitivity;
+		float rotationSensitivity = 0.5f;
 
-			else if (mouseDelta.y < 0 || mouseDelta.x > 0)
-				zoomFactor = _sensitivity;
+		_yaw += (float)mouseDelta.x * rotationSensitivity;
+		_pitch -= (float)mouseDelta.y * rotationSensitivity;
 
-			_frustum.pos += _frustum.front * zoomFactor;
-		}
-		else //Rotation
-		{
-			float rotationSensitivity = 0.5f;
-			float threshold = 0.1f;
+		_pitch = max(-89.0f, min(89.0f, _pitch));
 
-			_yaw += (float)mouseDelta.x * rotationSensitivity;
-			_pitch -= (float)mouseDelta.y * rotationSensitivity;
 
-			_pitch = max(-89.0f, min(89.0f, _pitch));
+	}
 
-		}
+	if (_ignoreInput && App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT)
+	{
+		RecalculateCameraAxes();
+
+		FocusCamera();
 	}
 }
 
@@ -222,6 +208,21 @@ void ModuleCamera::CalcProjMatrix()
 
 	_projMatrix = _frustum.ProjectionMatrix();
 	
+}
+
+void ModuleCamera::FocusCamera()
+{
+	float3 modelCenter = App->GetModuleRenderExcercise()->GetModel()->GetModelCenter();
+	float modelDiagonal = App->GetModuleRenderExcercise()->GetModel()->GetDiagonalModel();
+	float distanceFactor = 2.0f;
+
+	float3 objectPosition = modelCenter + (App->GetModuleRenderExcercise()->GetObjectPosition());
+
+	_frustum.pos = objectPosition - _frustum.front.Normalized() * modelDiagonal * distanceFactor;
+
+	RecalculateCameraAxes();
+
+	LookAt(_frustum.pos, objectPosition, _frustum.up);
 }
 
 
