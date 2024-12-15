@@ -11,8 +11,10 @@
 #include "tiny_gltf.h"
 
 
-Model::Model():_totalTriangles(0), _totalVertices(0)
+Model::Model():_totalTriangles(0), _totalVertices(0), _diagonalModel(0.0f)
 {
+    _minBounds = float3(FLT_MAX, FLT_MAX, FLT_MAX);
+    _maxBounds = float3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 }
 
 Model::~Model()
@@ -53,6 +55,7 @@ bool Model::LoadModel(const std::string& fileName)
 
     LoadMaterials(model);
     CalcNumVerticesTriangles();
+    CalculateBoundingBox();
 
     LOG("Model Loaded Successfully");
     return true;
@@ -91,6 +94,34 @@ void Model::LoadMaterials(const tinygltf::Model& srcModel)
     }
 
     LOG("Loaded Material Successfully")
+}
+
+void Model::CalculateBoundingBox() {
+
+    for (const auto& mesh : _mesh_list) {
+        float3 meshMin = mesh->GetMinBounds();
+        float3 meshMax = mesh->GetMaxBounds();
+
+        _minBounds.x = min(_minBounds.x, meshMin.x);
+        _minBounds.y = min(_minBounds.y, meshMin.y);
+        _minBounds.z = min(_minBounds.z, meshMin.z);
+
+        _maxBounds.x = max(_maxBounds.x, meshMax.x);
+        _maxBounds.y = max(_maxBounds.y, meshMax.y);
+        _maxBounds.z = max(_maxBounds.z, meshMax.z);
+    }
+
+    CalculateDiagonal();
+}
+
+void Model::CalculateDiagonal()
+{
+    _diagonalModel = (_maxBounds - _minBounds).Length();
+}
+
+float3 Model::GetModelCenter() const
+{
+    return (_minBounds + _maxBounds) * 0.5f;
 }
 
 void Model::Draw(unsigned int program) const

@@ -34,7 +34,7 @@ public:
     float4x4 GetProjMatrix() const { return _proj; }
     Model* GetModel() { return _model; }
 
-    float3 objectPosition;
+    float3 GetObjectPosition() { return _objectPosition; }
 
 
 private:
@@ -46,6 +46,8 @@ private:
    
     float4x4 _view;
     float4x4 _proj;
+
+    float3 _objectPosition;
     
     std::string _vertexShader;
     std::string _fragmentShader;   

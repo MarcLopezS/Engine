@@ -23,7 +23,7 @@ ModuleRenderExercise::ModuleRenderExercise()
 	_vertexShader = "../Vertex_Shader.glsl";
 	_fragmentShader = "../Fragment_Shader.glsl";
 	_program = new ModuleProgram(_vertexShader, _fragmentShader);
-	objectPosition = float3(0.0f, 1.0f, -1.0f);
+	_objectPosition = float3(0.0f, 1.0f, -1.0f);
 }
 
 ModuleRenderExercise::~ModuleRenderExercise()
@@ -88,7 +88,7 @@ bool ModuleRenderExercise::Init()
 update_status ModuleRenderExercise::Update()
 {
 	//get model, view and projection matrix
-	float4x4 model = float4x4::FromTRS(objectPosition, float4x4::RotateZ(0), float3(1.0f, 1.0f, 1.0f));
+	float4x4 model = float4x4::FromTRS(_objectPosition, float4x4::RotateZ(0), float3(1.0f, 1.0f, 1.0f));
 	_view = App->GetModuleCamera()->GetViewMatrix();
 	_proj = App->GetModuleCamera()->GetProjMatrix();
 

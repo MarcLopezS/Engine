@@ -2,6 +2,7 @@
 #include "ModuleInput.h"
 #include "Application.h"
 #include "ModuleRenderExercise.h"
+#include "Model.h"
 #include "Math/TransformOps.h"
 #include "Globals.h"
 #include "imgui.h"
@@ -103,9 +104,13 @@ void ModuleCamera::MovKeyboardController()
 
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_F) == KEY_REPEAT)
 	{
-		float3 objectPosition = App->GetModuleRenderExcercise()->objectPosition;
+		float3 modelCenter = App->GetModuleRenderExcercise()->GetModel()->GetModelCenter();
+		float modelDiagonal = App->GetModuleRenderExcercise()->GetModel()->GetDiagonalModel();
+		float distanceFactor = 2.0f;
 
-		_frustum.pos = objectPosition - _frustum.front * 0.2f;
+		float3 objectPosition = modelCenter + (App->GetModuleRenderExcercise()->GetObjectPosition());
+
+		_frustum.pos = objectPosition - _frustum.front * modelDiagonal * distanceFactor;
 
 		RecalculateCameraAxes();
 

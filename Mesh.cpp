@@ -93,7 +93,18 @@ bool Mesh::LoadAttribute(const tinygltf::Model& model, const tinygltf::Primitive
         {
             for (size_t i = 0; i < accessor.count; ++i)
             {
-                ptr[i] = *reinterpret_cast<const float3*>(bufferData);
+                float3 vertex = *reinterpret_cast<const float3*>(bufferData);
+                ptr[i] = vertex;
+
+                //Update mesh boundaries
+                _minBounds.x = min(_minBounds.x, vertex.x);
+                _minBounds.y = min(_minBounds.y, vertex.y);
+                _minBounds.z = min(_minBounds.z, vertex.z);
+
+                _maxBounds.x = max(_maxBounds.x, vertex.x);
+                _maxBounds.y = max(_maxBounds.y, vertex.y);
+                _maxBounds.z = max(_maxBounds.z, vertex.z);
+
                 bufferData += stride;
             }
             glUnmapBuffer(GL_ARRAY_BUFFER);
