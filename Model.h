@@ -17,9 +17,15 @@ public:
     void LoadMaterials(const tinygltf::Model& srcModel);
     void Draw(unsigned int program) const;
 
+    void CalcNumVerticesTriangles();
+    unsigned int GetTotalTriangles() const { return _totalTriangles; }
+    unsigned int GetTotalVertices() const { return _totalVertices; }
+
     void Destroy();
 
 private:
     std::vector<Mesh*> _mesh_list;
     std::vector<unsigned int> _textures;
+
+    unsigned int _totalTriangles, _totalVertices;
 };

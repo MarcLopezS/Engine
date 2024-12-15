@@ -104,11 +104,6 @@ void Application::ShowHardwareInfo()
 {
 	if (ImGui::CollapsingHeader("Hardware"))
 	{
-
-		ImGui::Text("SDL Version: %d.%d.%d", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
-
-		ImGui::Separator();
-		
 		//CPU & RAM
 		int cpuCount = SDL_GetCPUCount();
 		int cacheLineSize = SDL_GetCPUCacheLineSize();

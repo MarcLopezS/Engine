@@ -5,6 +5,8 @@
 #include <vector>
 #include <queue>
 
+class Model;
+
 
 class ModuleEditor :
     public Module
@@ -24,12 +26,14 @@ public:
 
 	void RenderLogWindow();
 	void DrawMenu();
+	//void DrawProperties(const Model* model);
 	//void ShowInput();
 
 	ImGuiIO* io;
 
 private:
 	void ShowAbout();
+	void ShowSoftware();
 
 	bool is_config_window;
 	bool is_about_window;
@@ -38,8 +42,11 @@ private:
 	std::queue<std::string> _pendingLogs;
 
 	bool is_initialized = false;
-	bool is_log_window;
-	bool is_texture_window;
+	bool is_log_window = false;
+	bool is_texture_window = false;
+	bool is_properties_window = false;
+
+	bool is_exit = false;
 
 };
 

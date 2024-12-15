@@ -5,10 +5,12 @@
 #include "tiny_gltf.h"
 #include "SDL.h"
 #include "glew-2.1.0/include/GL/glew.h"
+#include <unordered_set>
 
 
 
-Mesh::Mesh() : _vbo(0),_vbo_UV(0), _ebo(0), _vao(0), _indexCount(0)
+Mesh::Mesh() : _vbo(0),_vbo_UV(0), _ebo(0), _vao(0), _indexCount(0),
+        _numVertices(0)
 {
 }
 
@@ -149,11 +151,13 @@ bool Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Primitive& prim
             LOG("Error: Failed to map EBO buffer");
             return false;
         }
+        std::unordered_set<unsigned int> uniqueIndices;
 
         auto copyIndices = [&](auto bufferInd) 
             {
                 for (size_t i = 0; i < indAcc.count; ++i) {
                     ptr[i] = bufferInd[i];
+                    uniqueIndices.insert(ptr[i]);
                 }   
             };
 
@@ -176,6 +180,9 @@ bool Mesh::LoadEBO(const tinygltf::Model& model, const tinygltf::Primitive& prim
 
         glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
         _indexCount = indAcc.count;
+
+        //Num vertices & triangles
+        _numVertices = uniqueIndices.size();
         
     }
     LOG("End of Loading EBO");

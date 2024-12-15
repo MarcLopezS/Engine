@@ -20,11 +20,15 @@ public:
 
     void Destroy();
 
+    unsigned int GetNumTriangles() { return _indexCount / 3; }
+    unsigned int GetNumVertices() const { return _numVertices; }
+
 private:
     bool LoadAttribute(const tinygltf::Model& model, const tinygltf::Primitive& primitive,const std::string& attributeName, unsigned int& vbo, size_t elementSize);
 
     unsigned int _vbo,_vbo_UV,_ebo, _vao;
     size_t _indexCount;
+    unsigned int _numVertices;
     unsigned int _materialIndex;
 };
 

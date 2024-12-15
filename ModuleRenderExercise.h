@@ -27,10 +27,12 @@ public:
     void DestroyModel();
 
     void LoadNewModel(const std::string& fileName);
+    void DrawPropertiesWindow();
 
     ModuleProgram* GetProgram() { return _program; }
     float4x4 GetViewMatrix() const { return _view; }
     float4x4 GetProjMatrix() const { return _proj; }
+    Model* GetModel() { return _model; }
 
 
 private:
@@ -44,7 +46,7 @@ private:
     float4x4 _proj;
     
     std::string _vertexShader;
-    std::string _fragmentShader;
+    std::string _fragmentShader;   
 
 };
 

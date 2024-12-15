@@ -15,6 +15,7 @@
 #include "Math/TransformOps.h"
 #include "Geometry/Ray.h"
 #include "Geometry/Frustum.h"
+#include "imgui.h"
 
 
 ModuleRenderExercise::ModuleRenderExercise()
@@ -143,6 +144,41 @@ void ModuleRenderExercise::LoadNewModel(const std::string& fileName)
 	}
 
 	LOG("End of Loading new model process -------------------");
+}
+
+void ModuleRenderExercise::DrawPropertiesWindow()
+{
+	if (_model) {
+
+		if (ImGui::CollapsingHeader("Geometry"))
+		{
+			ImGui::Text("Triangle Count: %zu", _model->GetTotalTriangles());
+			ImGui::Text("Vertex Count: %zu", _model->GetTotalVertices());
+		}
+		if (ImGui::CollapsingHeader("Texture"))
+		{
+			ImGui::Text("Texture Size: ");
+			ImGui::BulletText("Width: %d", App->GetModuleTexture()->GetWidth());
+			ImGui::BulletText("Height: %d", App->GetModuleTexture()->GetHeight());
+
+		}
+		
+
+
+		/*auto [width, height] = model->GetTextureSize();
+		ImGui::Text("\nTexture");
+		ImGui::Separator();
+		if (width > 0 && height > 0) {
+			ImGui::Text("Texture Size: %d x %d", width, height);
+		}
+		else {
+			ImGui::Text("No texture loaded.");
+		}*/
+	}
+	else {
+		ImGui::Text("No model loaded.");
+	}
+
 }
 
 void ModuleRenderExercise::DestroyModel()

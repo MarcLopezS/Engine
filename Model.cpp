@@ -52,6 +52,7 @@ bool Model::LoadModel(const std::string& fileName)
     }
 
     LoadMaterials(model);
+    CalcNumVerticesTriangles();
 
     LOG("Model Loaded Successfully");
     return true;
@@ -96,6 +97,15 @@ void Model::Draw(unsigned int program) const
 {
     for (size_t i = 0; i < _mesh_list.size(); ++i) {
         _mesh_list[i]->Draw(program, _textures);
+    }
+}
+
+void Model::CalcNumVerticesTriangles()
+{
+    for (auto& mesh : _mesh_list)
+    {
+        _totalTriangles += mesh->GetNumTriangles();
+        _totalVertices += mesh->GetNumVertices();
     }
 }
 

@@ -3,6 +3,7 @@
 #include "ModuleOpenGL.h"
 #include "ModuleCamera.h"
 #include "ModuleTexture.h"
+#include "ModuleRenderExercise.h"
 #include "Application.h"
 #include "SDL.h"
 #include "backends/imgui_impl_sdl2.h"
@@ -10,7 +11,7 @@
 #include "glew-2.1.0\include\GL\glew.h"
 #include <algorithm>
 
-ModuleEditor::ModuleEditor() : is_config_window(false), is_about_window(false), is_log_window(false), is_texture_window(false)
+ModuleEditor::ModuleEditor()
 {
 	io = nullptr;
 }
@@ -49,12 +50,31 @@ update_status ModuleEditor::Update()
 {
 	DrawMenu();
 
+	if (is_exit)
+		return UPDATE_STOP;
+	//General
+	if (is_about_window)
+		ShowAbout();
+	
+	//View
 	if (is_log_window)
 		RenderLogWindow();
 
 	if (is_texture_window)
+	{
+		ImGui::Begin("Texture Options",&is_texture_window);
 		App->GetModuleTexture()->ShowTextureMenu();
+		ImGui::End();
+	}
 
+	if (is_properties_window)
+	{
+		ImGui::Begin("Properties", &is_properties_window);
+		App->GetModuleRenderExcercise()->DrawPropertiesWindow();
+		ImGui::End();
+	}
+
+	//Configuration
 	if (is_config_window)
 	{
 		ImGui::Begin("Configuration",&is_config_window);
@@ -65,12 +85,11 @@ update_status ModuleEditor::Update()
 		App->GetOpenGL()->DrawWindowOptions();
 		
 		App->ShowHardwareInfo();
+		ShowSoftware();
 
 		ImGui::End();
 	}
-
-	if (is_about_window)
-		ShowAbout();
+	
 
 	// Rendering
 	ImGui::Render();
@@ -148,19 +167,25 @@ void ModuleEditor::DrawMenu()
 {
 	if (ImGui::BeginMainMenuBar())
 	{
-		if (ImGui::BeginMenu("File"))
+		if (ImGui::BeginMenu("General"))
 		{
-			if (ImGui::MenuItem("New"))
+			if (ImGui::MenuItem("Visit GitHub Page"))
 			{
-				LOG("New File");
+				LOG("Opening browser to GitHub");
+				
+				if (SDL_OpenURL("https://github.com/MarcLopezS/Engine") != 0) {
+					SDL_Log("Unable to open URL: %s", SDL_GetError());
+				}
 			}
-			if (ImGui::MenuItem("Open"))
+			if (ImGui::MenuItem("About"))
 			{
-				LOG("Open file");
+				LOG("Showing About details");
+				is_about_window = !is_about_window;
 			}
-			if (ImGui::MenuItem("Save"))
+			if (ImGui::MenuItem("Exit"))
 			{
-				LOG("Save file");
+				LOG("Closing Engine");
+				is_exit = !is_exit;
 			}
 
 			ImGui::EndMenu(); 
@@ -174,7 +199,13 @@ void ModuleEditor::DrawMenu()
 			}
 			if (ImGui::MenuItem("Texture Menu"))
 			{
+				LOG("Opened Texture Editor Menu");
 				is_texture_window = !is_texture_window;
+			}
+			if (ImGui::MenuItem("Properties"))
+			{
+				LOG("Opened Properties");
+				is_properties_window = !is_properties_window;
 			}
 			ImGui::EndMenu(); 
 		}
@@ -182,24 +213,10 @@ void ModuleEditor::DrawMenu()
 		{
 			if (ImGui::MenuItem("Show Configuration"))
 			{
-				LOG("Opening Configuration Window");
+				LOG("Opened Configuration Window");
 				is_config_window = !is_config_window;
 			}
 			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Help"))
-		{
-			if (ImGui::MenuItem("Documentation"))
-			{
-				LOG("Opening Documentation");
-			}
-			if (ImGui::MenuItem("About"))
-			{
-				LOG("Showing About details");
-				is_about_window = !is_about_window;
-			}
-			ImGui::EndMenu(); 
 		}
 
 		ImGui::EndMainMenuBar(); 
@@ -211,30 +228,41 @@ void ModuleEditor::ShowAbout()
 	ImGui::Begin("About", &is_about_window);
 
 	ImGui::Text("Engine Name: %s", TITLE);
-	ImGui::Text("Description: %s", "example text"); //TODO
+	ImGui::Text("Description: %s", "A 3D engine using OpenGL, designed for developing a video game project as part of the UPC master's degree"); //TODO
 	ImGui::Text("Author: %s", AUTHOR);
 
 	ImGui::Separator();
-	//TODO:Show libraries with versions used
 	ImGui::Text("Libraries used:");
 	ImGui::BulletText("ImGui Version: %s", IMGUI_VERSION);
-	ImGui::BulletText("MathGeoLib Version: "); //TODO
+	ImGui::BulletText("MathGeoLib Version: %s",MATHGEOLIB_VERSION);
 
 	ImGui::BulletText("SDL Version: %d.%d.%d", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
 
 	ImGui::BulletText("OpenGL Version: %s", (const char*)glGetString(GL_VERSION));
 	ImGui::BulletText("GLEW Version: %s", (const char*)glewGetString(GLEW_VERSION));
+	ImGui::BulletText("DirectXTex Version: October 2024 v.%d", DIRECTX_TEX_VERSION);
+	ImGui::BulletText("Tiny_GLTF Version: %s", TINY_GLTF_VERSION);
 
-	//TODO:include library used for textures
 	ImGui::Separator();
 
-	//TODO:License
 	ImGui::Text("License: %s", LICENSE);
 
 	ImGui::End();
 
 }
 
+
+void ModuleEditor::ShowSoftware()
+{
+	if (ImGui::CollapsingHeader("Software"))
+	{
+		ImGui::Text("SDL Version: %d.%d.%d", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
+		ImGui::Text("OpenGL Version: %s", (const char*)glGetString(GL_VERSION));
+		ImGui::Text("GLEW Version: %s", (const char*)glewGetString(GLEW_VERSION));
+		ImGui::Text("DirectXTex Version: October 2024 v.%d", DIRECTX_TEX_VERSION);
+		ImGui::Text("Tiny_GLTF Version: %s", TINY_GLTF_VERSION);
+	}
+}
 
 //void ModuleEditor::ShowInput() 
 //{

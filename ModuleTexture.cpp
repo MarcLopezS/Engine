@@ -135,9 +135,8 @@ void ModuleTexture::SetWrapMode(GLint wrapS, GLint wrapT)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 }
 
-void ModuleTexture::ShowTextureMenu() {
-    ImGui::Begin("Texture Options");
-
+void ModuleTexture::ShowTextureMenu() 
+{
     ImGui::Text("Width: %d", _width);
     ImGui::Text("Height: %d", _height);
     ImGui::Text("Format: 0x%X", _format);
@@ -172,5 +171,4 @@ void ModuleTexture::ShowTextureMenu() {
         }
     }
 
-    ImGui::End();
 }
