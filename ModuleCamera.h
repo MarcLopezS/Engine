@@ -56,5 +56,7 @@ private:
     float _rotationSpeed;
     float _sensitivity;
 
+    bool _ignoreInput;
+
 };
 

@@ -1,6 +1,7 @@
 #include "ModuleCamera.h"
 #include "ModuleInput.h"
 #include "Application.h"
+#include "ModuleRenderExercise.h"
 #include "Math/TransformOps.h"
 #include "Globals.h"
 #include "imgui.h"
@@ -17,6 +18,7 @@ ModuleCamera::ModuleCamera()
 	_aspectRatio = 16.0f / 9.0f;
 	_nearPlane = 0.1f;
 	_farPlane = 100.0f;
+	_ignoreInput = false;
 
 }
 
@@ -57,7 +59,8 @@ update_status ModuleCamera::Update()
 	
 	RecalculateCameraAxes();
 	
-	LookAt(_frustum.pos, _frustum.pos + _frustum.front, _frustum.up);
+	if (!_ignoreInput)
+		LookAt(_frustum.pos, _frustum.pos + _frustum.front, _frustum.up);
 	
 	return UPDATE_CONTINUE;
 }
@@ -97,6 +100,23 @@ void ModuleCamera::MovKeyboardController()
 		_yaw += _rotationSpeed * _deltaTime;
 	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
 		_yaw -= _rotationSpeed * _deltaTime;
+
+	if (App->GetModuleInput()->GetKey(SDL_SCANCODE_F) == KEY_REPEAT)
+	{
+		float3 objectPosition = App->GetModuleRenderExcercise()->objectPosition;
+
+		_frustum.pos = objectPosition - _frustum.front * 0.2f;
+
+		RecalculateCameraAxes();
+
+		LookAt(_frustum.pos, objectPosition, _frustum.up);
+
+		_ignoreInput = true;
+	}
+	else {
+		_ignoreInput = false;
+	}
+
 }
 
 void ModuleCamera::MovMouseController()
