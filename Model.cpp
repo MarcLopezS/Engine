@@ -11,7 +11,7 @@
 #include "tiny_gltf.h"
 
 
-Model::Model()
+Model::Model():_totalTriangles(0), _totalVertices(0)
 {
 }
 
@@ -112,8 +112,12 @@ void Model::CalcNumVerticesTriangles()
 void Model::Destroy()
 {
     for (auto& mesh : _mesh_list) {
-        mesh->Destroy();
+        if (mesh) {
+            mesh->Destroy();
+            delete mesh;
+        }
     }
     _mesh_list.clear();
+    _textures.clear();
 }
 

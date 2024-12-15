@@ -34,6 +34,8 @@ public:
     float4x4 GetProjMatrix() const { return _proj; }
     Model* GetModel() { return _model; }
 
+    float3 objectPosition;
+
 
 private:
     SDL_Renderer* _renderer = nullptr;

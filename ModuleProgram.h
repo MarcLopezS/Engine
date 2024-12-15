@@ -26,6 +26,7 @@ public:
 private:
     std::string _vertexSource;
     std::string _fragmentSource;
+    unsigned int _programID = 0;
 
 };
 

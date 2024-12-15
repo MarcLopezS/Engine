@@ -5,13 +5,14 @@
 #include "glew-2.1.0/include/GL/glew.h"
 
 ModuleProgram::ModuleProgram(const std::string& vs, const std::string& fs)
+	:_vertexSource(vs), _fragmentSource(fs), _programID(0)
 {
-	_vertexSource = vs;
-	_fragmentSource = fs;
 }
 
 ModuleProgram::~ModuleProgram()
-{}
+{
+	CleanUp();
+}
 
 bool ModuleProgram::Init()
 {
@@ -25,7 +26,12 @@ update_status ModuleProgram::Update()
 
 bool ModuleProgram::CleanUp()
 {
-	return false;
+	if (_programID != 0)
+	{
+		glDeleteProgram(_programID);
+		_programID = 0;
+	}
+	return true;
 }
 
 std::string ModuleProgram::readShaderSource(const std::string& filePath)
@@ -68,6 +74,8 @@ unsigned int ModuleProgram::CompileShader(unsigned int type, const std::string& 
 		std::cout << "Failed to compile" << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!" << std::endl;
 		std::cout << message << std::endl;
 
+		_freea(message);
+
 		glDeleteShader(shader_id);
 		return 0;
 	}
@@ -77,28 +85,35 @@ unsigned int ModuleProgram::CompileShader(unsigned int type, const std::string& 
 
 unsigned int ModuleProgram::CreateProgram(const std::string& vertexShaderCont, const std::string& fragmentShaderCont)
 {
-	unsigned int program_id = glCreateProgram();
+	_programID = glCreateProgram();
 	unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShaderCont);
 	unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShaderCont);
 
-	glAttachShader(program_id, vs);
-	glAttachShader(program_id, fs);
-	glLinkProgram(program_id);
-	glValidateProgram(program_id);
+	if (vs == 0 || fs == 0)
+	{
+		glDeleteProgram(_programID);
+		_programID = 0;
+		return 0;
+	}
+
+	glAttachShader(_programID, vs);
+	glAttachShader(_programID, fs);
+	glLinkProgram(_programID);
+	glValidateProgram(_programID);
 
 	int res;
 
-	glGetProgramiv(program_id, GL_LINK_STATUS, &res);
+	glGetProgramiv(_programID, GL_LINK_STATUS, &res);
 
 	if (res == GL_FALSE)
 	{
 		int len = 0;
-		glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &len);
+		glGetProgramiv(_programID, GL_INFO_LOG_LENGTH, &len);
 		if (len > 0)
 		{
 			int written = 0;
 			char* info = (char*)malloc(len);
-			glGetProgramInfoLog(program_id, len, &written, info);
+			glGetProgramInfoLog(_programID, len, &written, info);
 			LOG("Program Log Info: %s", info);
 			free(info);
 		}
@@ -107,6 +122,6 @@ unsigned int ModuleProgram::CreateProgram(const std::string& vertexShaderCont, c
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
-	return program_id;
+	return _programID;
 }
 

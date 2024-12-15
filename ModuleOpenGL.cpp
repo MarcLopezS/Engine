@@ -29,6 +29,11 @@ bool ModuleOpenGL::Init()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+	if (_context) {
+		SDL_GL_DeleteContext(_context);
+		_context = nullptr;
+	}
+
 	_context = SDL_GL_CreateContext(App->GetWindow()->window);
 	
 	if (SDL_GL_SetSwapInterval(0) != 0) {
@@ -39,6 +44,11 @@ bool ModuleOpenGL::Init()
 	}
 	
 	GLenum err = glewInit();
+
+	if (err != GLEW_OK) {
+		LOG("Error initializing GLEW: %s", glewGetErrorString(err));
+		return false;
+	}
 
 	LOG("Using Glew %s", glewGetString(GLEW_VERSION));
 
@@ -89,7 +99,10 @@ bool ModuleOpenGL::CleanUp()
 	LOG("Destroying renderer");
 
 	//Destroy window
-	SDL_GL_DeleteContext(_context);
+	if (_context) {
+		SDL_GL_DeleteContext(_context);
+		_context = nullptr;
+	}
 
 	return true;
 }

@@ -23,11 +23,12 @@ ModuleRenderExercise::ModuleRenderExercise()
 	_vertexShader = "../Vertex_Shader.glsl";
 	_fragmentShader = "../Fragment_Shader.glsl";
 	_program = new ModuleProgram(_vertexShader, _fragmentShader);
+	objectPosition = float3(0.0f, 1.0f, -1.0f);
 }
 
 ModuleRenderExercise::~ModuleRenderExercise()
 {
-	delete _program;
+	
 }
 
 bool ModuleRenderExercise::Init()
@@ -87,7 +88,7 @@ bool ModuleRenderExercise::Init()
 update_status ModuleRenderExercise::Update()
 {
 	//get model, view and projection matrix
-	float4x4 model = float4x4::FromTRS(float3(0.0f, 1.0f, -1.0f), float4x4::RotateZ(0), float3(1.0f, 1.0f, 1.0f));
+	float4x4 model = float4x4::FromTRS(objectPosition, float4x4::RotateZ(0), float3(1.0f, 1.0f, 1.0f));
 	_view = App->GetModuleCamera()->GetViewMatrix();
 	_proj = App->GetModuleCamera()->GetProjMatrix();
 
@@ -122,6 +123,22 @@ update_status ModuleRenderExercise::PostUpdate()
 bool ModuleRenderExercise::CleanUp()
 {
 	DestroyModel();
+
+	if (_renderer) {
+		SDL_DestroyRenderer(_renderer);
+		_renderer = nullptr;
+	}
+
+	if (_program)
+	{
+		delete _program;
+		_program = nullptr;
+	}
+
+	if (_id_program != 0) {
+		glDeleteProgram(_id_program);
+		_id_program = 0;
+	}
 	return true;
 }
 
@@ -162,18 +179,6 @@ void ModuleRenderExercise::DrawPropertiesWindow()
 			ImGui::BulletText("Height: %d", App->GetModuleTexture()->GetHeight());
 
 		}
-		
-
-
-		/*auto [width, height] = model->GetTextureSize();
-		ImGui::Text("\nTexture");
-		ImGui::Separator();
-		if (width > 0 && height > 0) {
-			ImGui::Text("Texture Size: %d x %d", width, height);
-		}
-		else {
-			ImGui::Text("No texture loaded.");
-		}*/
 	}
 	else {
 		ImGui::Text("No model loaded.");

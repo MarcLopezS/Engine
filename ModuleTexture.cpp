@@ -4,7 +4,6 @@
 
 ModuleTexture::ModuleTexture() : _textureID(0), _format(GL_RGBA8) 
 {
-    glGenTextures(1, &_textureID);
 }
 
 ModuleTexture::~ModuleTexture() 
@@ -24,12 +23,20 @@ update_status ModuleTexture::Update()
 
 bool ModuleTexture::CleanUp()
 {
-    glDeleteTextures(1, &_textureID);
+    if (_textureID != 0) {
+        glDeleteTextures(1, &_textureID);
+        _textureID = 0;
+    }
     return true;
 }
 
 bool ModuleTexture::LoadTexture(const std::string& fileName) 
 {
+    if (_textureID != 0) {
+        glDeleteTextures(1, &_textureID);
+        _textureID = 0;
+    }
+
     DirectX::ScratchImage image;
     std::string filePath = MATERIAL_PATH + fileName;
 

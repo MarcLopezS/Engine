@@ -2,6 +2,7 @@
 
 #include<list>
 #include <vector>
+#include <memory>
 #include "Globals.h"
 #include "Module.h"
 #include "SDL.h"
@@ -64,7 +65,7 @@ private:
     ModuleEditor* _editor = nullptr;
     ModuleTexture* _texture = nullptr;
 
-    std::list<Module*> modules;
+    std::list<std::unique_ptr<Module>> modules;
 
 };
 

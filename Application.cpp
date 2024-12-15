@@ -17,14 +17,38 @@ using namespace std;
 Application::Application() : _deltaTime(0.0f), _lastFrameTime(SDL_GetTicks())
 {
 	// Order matters: they will Init/start/update in this order
-	modules.push_back(_window = new ModuleWindow());
+	/*modules.push_back(_window = new ModuleWindow());
 	modules.push_back(_render = new ModuleOpenGL());
 	modules.push_back(_debugDraw = new ModuleDebugDraw());
 	modules.push_back(_renderEx = new ModuleRenderExercise());
 	modules.push_back(_editor = new ModuleEditor());
 	modules.push_back(_input = new ModuleInput());
 	modules.push_back(_camera = new ModuleCamera());
-	modules.push_back(_texture = new ModuleTexture());
+	modules.push_back(_texture = new ModuleTexture());*/
+
+	modules.push_back(std::make_unique<ModuleWindow>());
+	_window = static_cast<ModuleWindow*>(modules.back().get());
+
+	modules.push_back(std::make_unique<ModuleOpenGL>());
+	_render = static_cast<ModuleOpenGL*>(modules.back().get());
+
+	modules.push_back(std::make_unique<ModuleDebugDraw>());
+	_debugDraw = static_cast<ModuleDebugDraw*>(modules.back().get());
+
+	modules.push_back(std::make_unique<ModuleRenderExercise>());
+	_renderEx = static_cast<ModuleRenderExercise*>(modules.back().get());
+
+	modules.push_back(std::make_unique<ModuleEditor>());
+	_editor = static_cast<ModuleEditor*>(modules.back().get());
+
+	modules.push_back(std::make_unique<ModuleInput>());
+	_input = static_cast<ModuleInput*>(modules.back().get());
+
+	modules.push_back(std::make_unique<ModuleCamera>());
+	_camera = static_cast<ModuleCamera*>(modules.back().get());
+
+	modules.push_back(std::make_unique<ModuleTexture>());
+	_texture = static_cast<ModuleTexture*>(modules.back().get());
 
 	_fps_log.reserve(_max_log_size);
 	_ms_log.reserve(_max_log_size);
@@ -33,18 +57,27 @@ Application::Application() : _deltaTime(0.0f), _lastFrameTime(SDL_GetTicks())
 
 Application::~Application()
 {
-	for(list<Module*>::iterator it = modules.begin(); it != modules.end(); ++it)
+	/*for(list<Module*>::iterator it = modules.begin(); it != modules.end(); ++it)
     {
         delete *it;
-    }
+    }*/
 }
 
 bool Application::Init()
 {
 	bool ret = true;
 
-	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret; ++it)
-		ret = (*it)->Init();
+	//for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret; ++it)
+	//	ret = (*it)->Init();
+	
+	for (auto& module : modules)
+	{
+		if (!module->Init())
+		{
+			ret = false;
+			break;
+		}
+	}
 
 	return ret;
 }
@@ -55,14 +88,32 @@ update_status Application::Update()
 
 	CalculateDeltaTime();
 
-	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret == UPDATE_CONTINUE; ++it)
+	/*for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret == UPDATE_CONTINUE; ++it)
 		ret = (*it)->PreUpdate();
 
 	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret == UPDATE_CONTINUE; ++it)
 		ret = (*it)->Update();
 
 	for(list<Module*>::iterator it = modules.begin(); it != modules.end() && ret == UPDATE_CONTINUE; ++it)
-		ret = (*it)->PostUpdate();
+		ret = (*it)->PostUpdate();*/
+
+	for (auto& module : modules)
+	{
+		if (ret == UPDATE_CONTINUE)
+			ret = module->PreUpdate();
+	}
+
+	for (auto& module : modules)
+	{
+		if (ret == UPDATE_CONTINUE)
+			ret = module->Update();
+	}
+
+	for (auto& module : modules)
+	{
+		if (ret == UPDATE_CONTINUE)
+			ret = module->PostUpdate();
+	}
 
 	return ret;
 }
@@ -71,8 +122,16 @@ bool Application::CleanUp()
 {
 	bool ret = true;
 
-	for(list<Module*>::reverse_iterator it = modules.rbegin(); it != modules.rend() && ret; ++it)
-		ret = (*it)->CleanUp();
+	/*for(list<Module*>::reverse_iterator it = modules.rbegin(); it != modules.rend() && ret; ++it)
+		ret = (*it)->CleanUp();*/
+
+	for (auto it = modules.rbegin(); it != modules.rend(); ++it)
+	{
+		if (!(*it)->CleanUp())
+		{
+			ret = false;
+		}
+	}
 
 	return ret;
 }
