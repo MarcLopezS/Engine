@@ -166,7 +166,6 @@ void ModuleEditor::RenderLogWindow()
 	ImGui::End();
 }
 
-//TODO:Check definitive menu options
 void ModuleEditor::DrawMenu()
 {
 	if (ImGui::BeginMainMenuBar())
@@ -232,7 +231,7 @@ void ModuleEditor::ShowAbout()
 	ImGui::Begin("About", &is_about_window);
 
 	ImGui::Text("Engine Name: %s", TITLE);
-	ImGui::Text("Description: %s", "A 3D engine using OpenGL, designed for developing a video game project as part of the UPC master's degree"); //TODO
+	ImGui::Text("Description: %s", "A 3D engine using OpenGL, designed for developing a video game project as part of the UPC master's degree");
 	ImGui::Text("Author: %s", AUTHOR);
 
 	ImGui::Separator();

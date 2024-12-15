@@ -128,7 +128,6 @@ void ModuleCamera::MovMouseController()
 	Point mouseDelta = App->GetModuleInput()->GetMouseMotion();
 	int mouse_wheel = App->GetModuleInput()->GetMouseWheel();
 
-	//TODO:Check unstable movement.
 	if (!_ignoreInput && (App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT ||
 		App->GetModuleInput()->GetMouseButtonDown(SDL_BUTTON_MIDDLE) == KEY_REPEAT)) 
 	{

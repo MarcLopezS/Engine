@@ -40,7 +40,6 @@ bool ModuleInput::Init()
 	return ret;
 }
 
-//TODO: Check if this process of reading inputs is done correctly
 update_status ModuleInput::PreUpdate()
 {
 	SDL_Event sdlEvent;
