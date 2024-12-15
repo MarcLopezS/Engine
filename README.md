@@ -14,7 +14,7 @@ Inside the Engine, you have diferent types of menu, depenging on the information
 
 * **General**: Here you have general information about the engine, including a button link to go to the repository of this Engine and an exit button.
 * **View**: This section it contains the console LOG, the Texture Menu (to modify properties from rendered texture) and properties that contains information about the Model rendered.
-* **Configuration**: in this part, it will display all the configurations of the Engine, showing: performance, window properties, hardware characteristics, software versions and input debugger.
+* **Configuration**: in this part, it will display all the configurations of the Engine, showing: performance, window properties, hardware characteristics, software versions, input debugger and OpenGL configurations.
 
 ### Controls
 The following list has all the inputs required in order to move the camera though the 3D space in the scene:
@@ -30,11 +30,11 @@ The following list has all the inputs required in order to move the camera thoug
 
 ### Specifications
 
-At first, a house model will be displayed by default. Consider that the model is small, so is easy to not see it.
+At first, a house model will be displayed by default. Consider that the model is small, so is easy to not see it. Press F key in order to see the current model clearly.
 
-ScareCrow engine interptrets GLTF files, in order to load meshes and textures to form the Model. To load new gltf models into the engine, consider the following instructions:
+ScareCrow Engine interptrets GLTF files, in order to load meshes and textures to form the Model. To load new gltf models into the engine, consider the following instructions:
 
-1. All GLTF files, binaries and image textures needs to be located in `./Resources/Models` directory.
+1. All GLTF files, binaries and image textures needs to be located in `./Game/assets` directory.
 2. Once files placed, you can drag and drop the GLTF file in the Engine Window. By doing so, it will be removed the previous model and render the dropped GLTF file.
 3. Once the model is loaded, the camera will make focus automatically and move far or close on the model rendered, depending on the scale of the geometry.
 
