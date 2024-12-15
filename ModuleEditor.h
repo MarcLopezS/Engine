@@ -27,7 +27,7 @@ public:
 	void RenderLogWindow();
 	void DrawMenu();
 	//void DrawProperties(const Model* model);
-	//void ShowInput();
+	void ShowInput();
 
 	ImGuiIO* io;
 
@@ -45,6 +45,7 @@ private:
 	bool is_log_window = false;
 	bool is_texture_window = false;
 	bool is_properties_window = false;
+	bool is_input_window = false;
 
 	bool is_exit = false;
 

@@ -4,6 +4,7 @@
 #include "ModuleCamera.h"
 #include "ModuleTexture.h"
 #include "ModuleRenderExercise.h"
+#include "ModuleInput.h"
 #include "Application.h"
 #include "SDL.h"
 #include "backends/imgui_impl_sdl2.h"
@@ -52,11 +53,11 @@ update_status ModuleEditor::Update()
 
 	if (is_exit)
 		return UPDATE_STOP;
-	//General
+	//Menu General
 	if (is_about_window)
 		ShowAbout();
 	
-	//View
+	//menu View
 	if (is_log_window)
 		RenderLogWindow();
 
@@ -74,7 +75,7 @@ update_status ModuleEditor::Update()
 		ImGui::End();
 	}
 
-	//Configuration
+	//Menu Configuration
 	if (is_config_window)
 	{
 		ImGui::Begin("Configuration",&is_config_window);
@@ -86,6 +87,7 @@ update_status ModuleEditor::Update()
 		
 		App->ShowHardwareInfo();
 		ShowSoftware();
+		App->GetModuleInput()->DrawInputUIWindow();
 
 		ImGui::End();
 	}
@@ -264,10 +266,3 @@ void ModuleEditor::ShowSoftware()
 	}
 }
 
-//void ModuleEditor::ShowInput() 
-//{
-//	if (ImGui::CollapsingHeader("Input"))
-//	{
-//
-//	}
-//}

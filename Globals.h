@@ -30,7 +30,7 @@ enum update_status
 // Configuration -----------
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
-#define SCREEN_SIZE 2.0f
+#define SCREEN_SIZE 1.0f
 #define FULLSCREEN false
 #define VSYNC true
 #define TITLE "ScareCrow Engine"

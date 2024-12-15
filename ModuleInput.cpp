@@ -136,3 +136,58 @@ bool ModuleInput::CleanUp()
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	return true;
 }
+
+const char* ModuleInput::KeyStateToString(KeyState state) const
+{
+	switch (state)
+	{
+	case KEY_IDLE:    return "IDLE";
+	case KEY_DOWN:    return "DOWN";
+	case KEY_REPEAT:  return "PRESSED";
+	case KEY_UP:      return "UP";
+	default:          return "UNKNOWN";
+	}
+}
+
+void ModuleInput::DrawInputUIWindow()
+{
+	if (ImGui::CollapsingHeader("Input"))
+	{
+		ImVec4 originalHeaderColor = ImGui::GetStyle().Colors[ImGuiCol_Header];
+		ImVec4 originalHeaderHoveredColor = ImGui::GetStyle().Colors[ImGuiCol_HeaderHovered];
+
+		ImVec4 grayColor = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+		ImVec4 grayHoveredColor = ImVec4(0.6f, 0.6f, 0.6f, 1.0f);
+
+		ImGui::PushStyleColor(ImGuiCol_Header, grayColor);
+		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, grayHoveredColor);
+
+		if (ImGui::CollapsingHeader("Mouse Button State"))
+		{
+			ImGui::Text("Mouse Position: (%f, %f)", _mouse.x, _mouse.y);
+
+			for (int i = 0; i < NUM_MOUSE_BUTTONS; ++i)
+			{
+				ImGui::Text("Mouse Button %d: %s", i + 1, KeyStateToString(_mouse_buttons[i]));
+			}
+		}
+
+		const SDL_Scancode keysToShow[] = {
+			SDL_SCANCODE_W, SDL_SCANCODE_A, SDL_SCANCODE_S, SDL_SCANCODE_D,
+			SDL_SCANCODE_Q, SDL_SCANCODE_E,
+			SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT
+		};
+
+		if (ImGui::CollapsingHeader("Keyboard State"))
+		{
+			for (SDL_Scancode scancode : keysToShow)
+			{
+				ImGui::Text("Key %s: %s", SDL_GetScancodeName(scancode), KeyStateToString(_keyState[scancode]));
+			}
+		}
+
+		//Restore original colors
+		ImGui::PopStyleColor(2);
+	}
+	
+}

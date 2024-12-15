@@ -50,6 +50,10 @@ public:
 	update_status Update();
 	bool CleanUp();
 
+    const char* KeyStateToString(KeyState state) const;
+    void DrawInputUIWindow();
+
+
     //Check the key states
     KeyState GetKey(int id) const { return _keyState[id]; }
     KeyState GetMouseButtonDown(int id) const { return _mouse_buttons[id - 1]; }
